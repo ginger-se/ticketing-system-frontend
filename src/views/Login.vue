@@ -26,7 +26,7 @@ onMounted(async () => {
 });
 
 function navigateToRecipes() {
-  router.push({ name: "recipes" });
+  router.push({ name: "shows" });
 }
 
 async function createAccount() {
@@ -52,7 +52,10 @@ async function login() {
       snackbar.value.value = true;
       snackbar.value.color = "green";
       snackbar.value.text = "Login successful!";
-      router.push({ name: "recipes" });
+      if (data.data.userType === "admin") {
+        router.push({ name: "adminShows" });
+      } 
+      else {router.push({ name: "shows" });}
     })
     .catch((error) => {
       console.log(error);

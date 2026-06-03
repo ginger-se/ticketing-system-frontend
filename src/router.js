@@ -18,28 +18,11 @@ const router = createRouter({
       name: "adminEvents",
       component: () => import("./views/AdminEvents.vue"),
     },
-
-    {
-      path: "/recipes",
-      name: "recipes",
-      component: () => import("./views/RecipeList.vue"),
-    },
-    {
-      path: "/recipe/:id",
-      name: "editRecipe",
-      props: true,
-      component: () => import("./views/EditRecipe.vue"),
-    },
-    {
-      path: "/ingredients",
-      name: "ingredients",
-      component: () => import("./views/IngredientList.vue"),
-    },
-    {
+     {
       path: "/shows",
       name: "shows",
       component: () => import("./views/ShowList.vue"),
-    },
+    }, 
   ],
 });
 
