@@ -52,6 +52,12 @@ function logout() {
       <v-btn v-if="user !== null" class="mx-2" :to="{ name: 'ingredients' }">
         Ingredients
       </v-btn>
+      <v-btn v-if="user !== null" class="mx-2" :to="{ name: 'adminShows' }">
+        Shows
+        </v-btn>
+        <v-btn v-if="user !== null" class="mx-2" :to="{ name: 'adminEvents' }">
+      Events
+      </v-btn>
       <v-menu v-if="user !== null" min-width="200px" rounded>
         <template v-slot:activator="{ props }">
           <v-btn icon v-bind="props">
