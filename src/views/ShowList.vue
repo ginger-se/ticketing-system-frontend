@@ -1,8 +1,7 @@
 <script setup>
-import { onMounted } from "vue";
-import { ref } from "vue";
-
+import { onMounted, ref } from "vue";
 import ShowServices from "../services/ShowServices.js";
+
 const shows = ref([]);
 const user = ref(null);
 const snackbar = ref({
@@ -26,26 +25,49 @@ async function getShows() {
       console.log(error);
       snackbar.value.value = true;
       snackbar.value.color = "error";
-      snackbar.value.text = error.response.data.message;
+      snackbar.value.text = error.response?.data?.message || "Error loading shows";
     });
-  
 }
 </script>
 
 <template>
   <v-container>
     <div id="body">
-      <v-card-title class="pl-0 text-h4 font-weight-bold">
+      <v-card-title class="pl-0 text-h4 font-weight-bold mb-4">
         Offered Shows
       </v-card-title>
-      <v-card v-for="show in shows" class="my-5 elevation-2" color="" variant="outlined" :title="show.title" :subtitle="'Price: $' + (show.price / 100).toFixed(2)" >
+
+      <v-card
+        v-for="show in shows"
+        :key="show.id"
+        class="my-5 elevation-2"
+        variant="outlined"
+        :title="show.title"
+        :subtitle="'Price: $' + parseFloat(show.price).toFixed(2)"
+      >
         <div class="d-flex">
-            <v-card-text class="pt-0">{{ show.description.substring(0, 150) + '...' }}</v-card-text>
-            <v-card-actions class="justify-end">
-              <v-btn class="bg-primary">View Show Times</v-btn>
-            </v-card-actions>
-          </div>
-      </v-card>  
+          <v-card-text class="pt-0">
+            {{ show.description ? show.description.substring(0, 150) + '...' : 'No description available.' }}
+          </v-card-text>
+          <v-card-actions class="justify-end">
+            <v-btn class="bg-primary">View Show Times</v-btn>
+          </v-card-actions>
+        </div>
+      </v-card>
+
+      <v-card v-if="shows.length === 0" class="my-5 elevation-2" variant="outlined">
+        <v-card-text>No shows available at this time.</v-card-text>
+      </v-card>
+
     </div>
+
+    <v-snackbar v-model="snackbar.value" rounded="pill">
+      {{ snackbar.text }}
+      <template v-slot:actions>
+        <v-btn :color="snackbar.color" variant="text" @click="snackbar.value = false">
+          Close
+        </v-btn>
+      </template>
+    </v-snackbar>
   </v-container>
 </template>

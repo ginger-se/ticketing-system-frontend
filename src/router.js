@@ -8,27 +8,21 @@ const router = createRouter({
       name: "login",
       component: () => import("./views/Login.vue"),
     },
-    {
-      path: "/recipes",
-      name: "recipes",
-      component: () => import("./views/RecipeList.vue"),
+     {
+      path: "/admin/shows",
+      name: "adminShows",
+      component: () => import("./views/AdminShows.vue"),
     },
-    {
-      path: "/recipe/:id",
-      name: "editRecipe",
-      props: true,
-      component: () => import("./views/EditRecipe.vue"),
+     {
+      path: "/admin/events",
+      name: "adminEvents",
+      component: () => import("./views/AdminEvents.vue"),
     },
-    {
-      path: "/ingredients",
-      name: "ingredients",
-      component: () => import("./views/IngredientList.vue"),
-    },
-    {
+     {
       path: "/shows",
       name: "shows",
       component: () => import("./views/ShowList.vue"),
-    },
+    }, 
   ],
 });
 
