@@ -3,11 +3,11 @@ import { createRouter, createWebHistory } from "vue-router";
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
-    {
-      path: "/",
-      name: "login",
-      component: () => import("./views/Login.vue"),
-    },
+    // {
+    //   path: "/",
+    //   name: "login",
+    //   component: () => import("./views/Login.vue"),
+    // },
      {
       path: "/admin/shows",
       name: "adminShows",
@@ -22,6 +22,11 @@ const router = createRouter({
       path: "/shows",
       name: "shows",
       component: () => import("./views/ShowList.vue"),
+    },
+    {
+      path: "/login",
+      name: "login",
+      component: () => import("./views/LoginView.vue"),
     }, 
   ],
 });
