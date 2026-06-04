@@ -7,7 +7,7 @@ const router = createRouter({
       path: "/",
       name: "login",
       component: () => import("./views/Login.vue"),
-    },
+    }, 
      {
       path: "/admin/shows",
       name: "adminShows",
@@ -28,6 +28,7 @@ const router = createRouter({
       name: "eventList",
       component: () => import("./views/EventList.vue"),
     },
+    
   ],
 });
 
