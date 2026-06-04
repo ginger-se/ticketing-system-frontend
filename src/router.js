@@ -8,6 +8,11 @@ const router = createRouter({
       name: "login",
       component: () => import("./views/Login.vue"),
     },
+    {
+      path: "/profile",
+      name: "profile",
+      component: () => import("./views/ShowList.vue"),
+    }, 
      {
       path: "/admin/shows",
       name: "adminShows",
@@ -21,6 +26,11 @@ const router = createRouter({
      {
       path: "/shows",
       name: "shows",
+      component: () => import("./views/ShowList.vue"),
+    }, 
+    {
+      path: "/events",
+      name: "events",
       component: () => import("./views/ShowList.vue"),
     }, 
   ],
