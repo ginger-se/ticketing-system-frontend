@@ -48,6 +48,8 @@ async function createAccount() {
 async function login() {
   await UserServices.loginUser(user)
     .then((data) => {
+            console.log("Login response:", data.data); // ← add this
+
       window.localStorage.setItem("user", JSON.stringify(data.data));
       snackbar.value.value = true;
       snackbar.value.color = "green";
@@ -106,18 +108,7 @@ function closeSnackBar() {
         </v-card-actions>
       </v-card>
 
-      <v-card class="rounded-lg elevation-5 my-8">
-        <v-card-title class="text-center headline">
-          <v-btn
-            class="ml-2"
-            variant="flat"
-            color="secondary"
-            @click="navigateToRecipes()"
-          >
-            View Published Recipes
-          </v-btn>
-        </v-card-title>
-      </v-card>
+     
 
       <v-dialog persistent v-model="isCreateAccount" width="800">
         <v-card class="rounded-lg elevation-5">
