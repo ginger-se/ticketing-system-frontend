@@ -38,6 +38,11 @@ const router = createRouter({
   name: "profile",
   component: () => import("./views/ShowList.vue"),
 },
+{
+  path: "/admin/dashboard",
+  name: "adminDashboard",
+  component: () => import("./views/AdminDashboard.vue"),
+},
   ],
 });
 
