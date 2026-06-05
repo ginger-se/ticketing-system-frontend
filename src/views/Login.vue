@@ -55,7 +55,7 @@ async function login() {
       snackbar.value.color = "green";
       snackbar.value.text = "Login successful!";
       if (data.data.userType === "admin") {
-        router.push({ name: "adminShows" });
+        router.push({ name: "adminDashboard" });
       } 
       else {router.push({ name: "shows" });}
     })
