@@ -43,15 +43,15 @@ async function getShows() {
         class="my-5 elevation-2"
         variant="outlined"
         :title="show.title"
-        :subtitle="'Price: $' + parseFloat(show.price).toFixed(2)"
-      >
+        :subtitle="show.speakerInfo ? 'Speaker: ' + show.speakerInfo : ''"      >
         <div class="d-flex">
           <v-card-text class="pt-0">
             {{ show.description ? show.description.substring(0, 150) + '...' : 'No description available.' }}
           </v-card-text>
           <v-card-actions class="justify-end">
-            <v-btn class="bg-primary">View Show Times</v-btn>
-          </v-card-actions>
+      <v-btn 
+        class="bg-primary" :to="{ name: 'eventList', params: { id: show.id } }" > View Show Details</v-btn>          
+      </v-card-actions>
         </div>
       </v-card>
 

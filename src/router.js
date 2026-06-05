@@ -7,7 +7,7 @@ const router = createRouter({
     //   path: "/",
     //   name: "login",
     //   component: () => import("./views/Login.vue"),
-    // },
+    // }, 
      {
       path: "/admin/shows",
       name: "adminShows",
@@ -22,12 +22,27 @@ const router = createRouter({
       path: "/shows",
       name: "shows",
       component: () => import("./views/ShowList.vue"),
+    }, 
+    {
+      path: "/shows/:id/events",
+      name: "eventList",
+      component: () => import("./views/EventList.vue"),
     },
     {
-      path: "/login",
-      name: "login",
-      component: () => import("./views/LoginView.vue"),
-    }, 
+  path: "/events",
+  name: "events",
+  component: () => import("./views/EventList.vue"),
+},
+{
+  path: "/profile",
+  name: "profile",
+  component: () => import("./views/ShowList.vue"),
+},
+{
+  path: "/admin/dashboard",
+  name: "adminDashboard",
+  component: () => import("./views/AdminDashboard.vue"),
+},
   ],
 });
 
