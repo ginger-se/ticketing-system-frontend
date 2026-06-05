@@ -80,7 +80,7 @@ function closeSnackBar() {
 </script>
 
 <template>
-  <v-container class="fluid fill-height">
+  <v-container fluid class="fill-height">
     <v-row align="center" justify="center">
       <v-col cols="8">
         <v-card>
@@ -122,48 +122,6 @@ function closeSnackBar() {
       </v-col>
     </v-row>
 
-    <!-- <v-dialog persistent v-model="isCreateAccount" width="800">
-      <v-card class="rounded-lg elevation-5">
-        <v-card-title class="headline mb-2">Create Account </v-card-title>
-        <v-card-text>
-          <v-text-field
-            v-model="user.firstName"
-            label="First Name"
-            required
-          ></v-text-field>
-  
-          <v-text-field
-            v-model="user.lastName"
-            label="Last Name"
-            required
-          ></v-text-field>
-  
-          <v-text-field
-            v-model="user.email"
-            label="Email"
-            required
-          ></v-text-field>
-  
-          <v-text-field
-            v-model="user.password"
-            label="Password"
-            required
-          ></v-text-field>
-        </v-card-text>
-        <v-card-actions>
-          <v-spacer></v-spacer>
-          <v-btn
-            variant="flat"
-            color="secondary"
-            @click="closeCreateAccount()"
-            >Close</v-btn
-          >
-          <v-btn variant="flat" color="primary" @click="createAccount()"
-            >Create Account</v-btn
-          >
-        </v-card-actions>
-      </v-card>
-    </v-dialog> -->
     <v-dialog persistent v-model="isCreateAccount" width="800">
       <v-card class="rounded-lg elevation-5">
         <v-toolbar color="primary">
@@ -176,8 +134,6 @@ function closeSnackBar() {
           </v-btn>
         </v-toolbar>
 
-        <!-- <v-card-title class="headline mb-2">Create Account </v-card-title> -->
-
         <v-card-text>
 
           <v-alert>
@@ -185,18 +141,26 @@ function closeSnackBar() {
             and get exclusive updates!
           </v-alert>
 
-          <v-text-field
-            v-model="user.firstName"
-            label="First Name"
-            required
-          ></v-text-field>
+          <v-row>
+            <v-col>
+              <v-text-field
+                v-model="user.firstName"
+                label="First Name"
+                required
+              >
+              </v-text-field>
+            </v-col>
+            <v-col>
+              <v-text-field
+                v-model="user.lastName"
+                label="Last Name"
+                required
+              ></v-text-field>
+            </v-col>
+          </v-row>
   
-          <v-text-field
-            v-model="user.lastName"
-            label="Last Name"
-            required
-          ></v-text-field>
-  
+          <v-divider></v-divider>
+
           <v-text-field
             v-model="user.email"
             label="Email"
