@@ -22,9 +22,6 @@ const user = ref({
 
 onMounted(async () => {
   localStorage.removeItem("user");
-  // if (localStorage.getItem("user") !== null) {
-  //   router.push({ name: "recipes" });
-  // }
 });
 
 function navigateToRecipes() {
@@ -65,6 +62,10 @@ async function login() {
       snackbar.value.color = "error";
       snackbar.value.text = error.response.data.message;
     });
+}
+
+function continueAsGuest() {
+  router.push({ name: "shows" });
 }
 
 function openCreateAccount() {
@@ -120,7 +121,7 @@ function closeSnackBar() {
                 <v-divider>or</v-divider>              
               </v-container>
               <v-btn class="mb-2" :class="buttonClass" color="primary" variant="tonal" @click="openCreateAccount()">Create New Account</v-btn>
-              <v-btn class="my-2" :class="buttonClass" color="seconday" variant="outlined">Continue as Guest</v-btn>
+              <v-btn class="my-2" :class="buttonClass" variant="outlined" @click="continueAsGuest()">Continue as Guest</v-btn>
             </div>
           </v-card-text>
         </v-card>
