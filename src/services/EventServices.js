@@ -4,7 +4,9 @@ export default {
   getEvents() {
     return apiClient.get("events");
   },
-  
+  getEventsForToday(){
+    return apiClient.get("eventsToday")
+  },
   getEventsByShowId(showId) {
     return apiClient.get("events?showId=" + showId);
   },
