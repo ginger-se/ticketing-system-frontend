@@ -38,6 +38,9 @@ function getEventLength(event){
     return hours + 'hr ' + minutes + "min";
 }
 </script>
+<style>
+
+</style>
 
 <template>
   <v-container>
@@ -59,13 +62,15 @@ function getEventLength(event){
 
             <div class="d-flex "><h3>Today's Events</h3><router-link class="ml-auto text-decoration-none text-black" :to="{name: 'events'}"><span >view all</span></router-link></div>
             <div class="d-flex flex-wrap">
-                <v-card v-for="event in events" class="ma-2 pb-2 d-flex " style="width: 30%;" elevation="4" :to="{ name: 'eventList', params: { id: event.show.id } }">
-                    <div class="d-flex flex-column w-50">
-                        <v-card-title>{{ event.show.title }}</v-card-title>
-                        <v-card-subtitle>{{ new Date(event.startTime).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}}</v-card-subtitle>
-                        <v-card-subtitle>{{ "  Duration: " + getEventLength(event) }}</v-card-subtitle>
+                <v-card v-for="event in events" class="ma-2  " style="width: 30%;" elevation="4" :to="{ name: 'eventList', params: { id: event.show.id } }">
+                    <v-card-title>{{ event.show.title }}</v-card-title>
+                    <div class="pb-2 d-flex">
+                        <div class="d-flex flex-column w-50">
+                            <v-card-subtitle>{{ new Date(event.startTime).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}}</v-card-subtitle>
+                            <v-card-subtitle>{{ getEventLength(event) }}</v-card-subtitle>
+                        </div>
+                        <v-card-text class="">{{ 'Availability: ' + (event.capacity - event.eventTickets.length) + " / " + event.capacity }}</v-card-text>
                     </div>
-                    <v-card-text class="my-auto">{{ 'Availability: ' + (event.capacity - event.eventTickets.length) + " / " + event.capacity }}</v-card-text>
                 </v-card>
             </div>
 
