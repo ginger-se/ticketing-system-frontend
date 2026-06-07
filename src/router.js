@@ -18,6 +18,11 @@ const router = createRouter({
       name: "adminEvents",
       component: () => import("./views/AdminEvents.vue"),
     },
+    {
+      path: "/home",
+      name: "home",
+      component: () => import("./views/Home.vue"),
+    }, 
      {
       path: "/shows",
       name: "shows",
@@ -29,20 +34,20 @@ const router = createRouter({
       component: () => import("./views/EventList.vue"),
     },
     {
-  path: "/events",
-  name: "events",
-  component: () => import("./views/EventList.vue"),
-},
-{
-  path: "/profile",
-  name: "profile",
-  component: () => import("./views/ShowList.vue"),
-},
-{
-  path: "/admin/dashboard",
-  name: "adminDashboard",
-  component: () => import("./views/AdminDashboard.vue"),
-},
+      path: "/events",
+      name: "events",
+      component: () => import("./views/EventList.vue"),
+    },
+    {
+      path: "/profile",
+      name: "profile",
+      component: () => import("./views/ShowList.vue"),
+    },
+    {
+      path: "/admin/dashboard",
+      name: "adminDashboard",
+      component: () => import("./views/AdminDashboard.vue"),
+    },
   ],
 });
 
