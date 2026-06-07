@@ -52,9 +52,9 @@ async function login() {
       snackbar.value.color = "green";
       snackbar.value.text = "Login successful!";
       if (data.data.userType === "admin") {
-        router.push({ name: "adminShows" });
+        router.push({ name: "adminDashboard" });
       } 
-      else {router.push({ name: "shows" });}
+      else {router.push({ name: "home" });}
     })
     .catch((error) => {
       console.log(error);
@@ -65,7 +65,7 @@ async function login() {
 }
 
 function continueAsGuest() {
-  router.push({ name: "shows" });
+  router.push({ name: "home" });
 }
 
 function openCreateAccount() {
