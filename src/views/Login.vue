@@ -141,56 +141,104 @@ function closeSnackBar() {
         </v-toolbar>
     
         <v-card-text>
-    
           <v-alert>
             Create an account to save your tickets, manage bookings,
             and get exclusive updates!
           </v-alert>
     
+          <div>Personal Information</div>
           <v-row>
             <v-col>
+              <div class="text-body-large text-large-emphasis mb-1">First Name *</div>
               <v-text-field
                 v-model="user.firstName"
-                label="First Name"
+                density="compact"
+                placeholder="Jane"
                 required
+                variant="outlined"
               >
               </v-text-field>
             </v-col>
             <v-col>
+               <div class="text-body-large text-large-emphasis mb-1">Last Name *</div>
               <v-text-field
                 v-model="user.lastName"
-                label="Last Name"
+                density="compact"
+                placeholder="Doe"
                 required
+                variant="outlined"
               ></v-text-field>
             </v-col>
           </v-row>
     
-          <v-divider></v-divider>
+          <v-container>
+            <v-divider></v-divider>
+          </v-container>
     
+          <div>Contact Information</div>
+          <div class="text-body-large text-large-emphasis mb-1">Email Address *</div>
           <v-text-field
             v-model="user.email"
-            label="Email"
+            density="compact"
+            placeholder="jane.doe@example.com"
             required
+            variant="outlined"
           ></v-text-field>
-    
+          <div class="text-body-large text-medium-emphasis mb-1">You'll use this to log in and receive tickets</div>
+
+          <div class="text-body-large text-large-emphasis mb-1">Phone Number</div>
+          <v-text-field
+            v-model="user.phoneNumber"
+            density="compact"
+            placeholder="(999) 999-9999"
+            variant="outlined"
+          ></v-text-field>
+          <div class="text-body-large text-medium-emphasis mb-1">Optional - for booking confirmations</div>
+
+          <v-container>
+            <v-divider></v-divider>
+          </v-container>
+
+          <div>Account Security</div>
+          <div class="text-body-large text-large-emphasis mb-1">Password *</div>
           <v-text-field
             v-model="user.password"
-            label="Password"
+            density="compact"
+            placeholder="abc123"
             required
+            variant="outlined"
+          ></v-text-field>
+          <div class="text-body-large text-medium-emphasis mb-1">Must be at least 8 characters</div>
+
+          <div class="text-body-large text-large-emphasis mb-1">Confirm Password *</div>
+          <v-text-field
+            v-model="user.password"
+            density="compact"
+            placeholder="abc123"
+            required
+            variant="outlined"
           ></v-text-field>
         </v-card-text>
-        <v-card-actions>
-          <v-spacer></v-spacer>
-          <v-btn
-            variant="flat"
-            color="secondary"
-            @click="closeCreateAccount()"
-            >Close</v-btn
-          >
-          <v-btn variant="flat" color="primary" @click="createAccount()"
-            >Create Account</v-btn
-          >
-        </v-card-actions>
+
+        <v-footer color="secondary">
+          <v-card-actions>
+              <v-spacer></v-spacer>
+              <v-btn
+                class="px-4"
+                variant="outlined"
+                color="primary"
+                @click="closeCreateAccount()"
+                >Cancel</v-btn
+              >
+              <v-btn 
+                variant="flat"
+                color="primary"
+                class="px-6"
+                @click="createAccount()"
+                >Create Account & Continue</v-btn
+              >
+          </v-card-actions>
+        </v-footer>
       </v-card>
     </v-dialog>
     
