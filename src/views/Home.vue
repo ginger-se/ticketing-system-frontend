@@ -38,44 +38,36 @@ function getEventLength(event){
     return hours + 'hr ' + minutes + "min";
 }
 </script>
-<style>
-
-</style>
-
 <template>
   <v-container>
     <div id="body">
-            <v-card class="bg-primary w-90 rounded-lg my-10 d-flex justify-center  align-center" elevation="4" style="height: 30vh">
-                <div class="d-flex flex-column align-center">
-
-                    <v-card-title>
-                        Journey Through The Cosmos
-                    </v-card-title>
-                    <v-card-subtitle>
-                        Experience the wonders of the universe.
-                    </v-card-subtitle>
-                    <v-btn class="my-4 border-sm border-secondary bg-transparent border-opacity-100 rounded-lg pa-2" :to="{name: 'shows'}">
-                        Browse Shows
-                    </v-btn>
+        <v-card class="bg-primary w-90 rounded-lg my-10 d-flex justify-center  align-center" elevation="4" style="height: 30vh">
+            <div class="d-flex flex-column align-center">
+                <v-card-title>
+                    Journey Through The Cosmos
+                </v-card-title>
+                <v-card-subtitle>
+                    Experience the wonders of the universe.
+                </v-card-subtitle>
+                <v-btn class="my-4 border-sm border-secondary bg-transparent border-opacity-100 rounded-lg pa-2" :to="{name: 'shows'}">
+                    Browse Shows
+                </v-btn>
+            </div>
+        </v-card>
+        <div class="d-flex "><h3>Today's Events</h3><router-link class="ml-auto text-decoration-none text-black" :to="{name: 'events'}"><span >view all</span></router-link></div>
+        <div class="d-flex flex-wrap">
+            <v-card v-for="event in events" class="ma-2  " style="width: 30%;" elevation="4" :to="{ name: 'eventList', params: { id: event.show.id } }">
+                <v-card-title>{{ event.show.title }}</v-card-title>
+                <div class="pb-2 d-flex">
+                    <div class="d-flex flex-column w-50">
+                        <v-card-subtitle>{{ new Date(event.startTime).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}}</v-card-subtitle>
+                        <v-card-subtitle>{{ getEventLength(event) }}</v-card-subtitle>
+                    </div>
+                    <v-card-text class="">{{ 'Availability: ' + (event.capacity - event.eventTickets.length) + " / " + event.capacity }}</v-card-text>
                 </div>
             </v-card>
-
-            <div class="d-flex "><h3>Today's Events</h3><router-link class="ml-auto text-decoration-none text-black" :to="{name: 'events'}"><span >view all</span></router-link></div>
-            <div class="d-flex flex-wrap">
-                <v-card v-for="event in events" class="ma-2  " style="width: 30%;" elevation="4" :to="{ name: 'eventList', params: { id: event.show.id } }">
-                    <v-card-title>{{ event.show.title }}</v-card-title>
-                    <div class="pb-2 d-flex">
-                        <div class="d-flex flex-column w-50">
-                            <v-card-subtitle>{{ new Date(event.startTime).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}}</v-card-subtitle>
-                            <v-card-subtitle>{{ getEventLength(event) }}</v-card-subtitle>
-                        </div>
-                        <v-card-text class="">{{ 'Availability: ' + (event.capacity - event.eventTickets.length) + " / " + event.capacity }}</v-card-text>
-                    </div>
-                </v-card>
-            </div>
-
+        </div>
     </div>
-
     <v-snackbar v-model="snackbar.value" rounded="pill">
       {{ snackbar.text }}
       <template v-slot:actions>
