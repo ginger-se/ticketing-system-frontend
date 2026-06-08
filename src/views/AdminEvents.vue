@@ -135,6 +135,9 @@ function closeSnackBar() {
 
 <template>
   <v-container>
+   <v-btn  variant="text" prepend-icon="mdi-arrow-left"  :to="{ name: 'adminDashboard' }" class="mb-4">
+    Back to Dashboard
+  </v-btn>
     <v-row align="center" class="mb-4">
       <v-col cols="10">
         <v-card-title class="pl-0 text-h4 font-weight-bold">

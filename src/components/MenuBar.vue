@@ -44,29 +44,9 @@ function logout() {
       <v-toolbar-title class="title" style="max-width: 120px;">
         {{ title }}
       </v-toolbar-title>
-      <v-btn 
-        v-if="user !== null && user.userType === 'admin'" 
-        class="mx-2" 
-        :to="{ name: 'adminDashboard' }">
-        Dashboard
-      </v-btn>
-      <v-btn v-if="user === null || user.userType !== 'admin'" class="mx-2" :to="{ name: 'shows' }">Shows</v-btn>
-<v-btn v-if="user === null || user.userType !== 'admin'" class="mx-2" :to="{ name: 'events' }">Events</v-btn>
+      
       <v-btn v-if="user === null" class="mx-2 ml-auto justify-end" :to="{ name: 'login' }">
         Login
-      </v-btn>
-
-      <v-btn 
-        v-if="user !== null && user.userType === 'admin'" 
-        class="mx-2" 
-        :to="{ name: 'adminShows' }">
-        ManageShows
-        </v-btn>
-       <v-btn 
-        v-if="user !== null && user.userType === 'admin'" 
-        class="mx-2" 
-        :to="{ name: 'adminEvents' }">
-        ManageEvents
       </v-btn>
       <v-menu v-if="user !== null" min-width="200px" rounded>
         <template v-slot:activator="{ props }">
