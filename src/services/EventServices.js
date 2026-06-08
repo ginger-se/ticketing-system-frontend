@@ -5,7 +5,7 @@ export default {
     return apiClient.get("events");
   },
   getEventsForToday(){
-    return apiClient.get("eventsToday")
+    return apiClient.get("events/today")
   },
   getEventsByShowId(showId) {
     return apiClient.get("events?showId=" + showId);
