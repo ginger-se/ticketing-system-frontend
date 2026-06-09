@@ -17,7 +17,7 @@ export default {
     return apiClient.post("events", event);
   },
   updateEvent(eventId, event) {
-    return apiClient.get("events/" + eventId, event);
+    return apiClient.put("events/" + eventId, event);
   },
   cancelEvent(eventId) {
     return apiClient.put("events/" + eventId + "/cancel");
