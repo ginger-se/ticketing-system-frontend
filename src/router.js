@@ -48,6 +48,11 @@ const router = createRouter({
       name: "adminDashboard",
       component: () => import("./views/AdminDashboard.vue"),
     },
+    {
+      path: "/seatmap",
+      name: "seatmap",
+      component: () => import("./views/SeatMap.vue"),
+    },
   ],
 });
 
