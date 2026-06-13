@@ -96,12 +96,12 @@ function openAdd() {
 }
 
 function openEdit(seat) {
+  isAdd.value = false;
   currentSeat.value = {...seat};
   modalOpen.value = true;
 }
 
 function closeModal() {
-  isAdd.value = false;
   modalOpen.value = false;
 }
 
@@ -118,7 +118,7 @@ function closeSnackBar() {
     <v-row align="center" class="mb-4">
       <v-col cols="10">
         <v-card-title class="pl-0 text-h4 font-weight-bold">
-          Manage Shows
+          Manage Seats
         </v-card-title>
       </v-col>
       <v-col class="d-flex justify-end" cols="2">
@@ -162,10 +162,10 @@ function closeSnackBar() {
     </v-card>
 
 
-    <!-- Edit Show Dialog -->
+    <!-- Edit Seat Dialog -->
     <v-dialog persistent v-model="modalOpen" width="600">
       <v-card class="rounded-lg elevation-5">
-        <v-card-title class="headline mb-2">{{ isAdd ? 'Create' : 'Edit' }} Show</v-card-title>
+        <v-card-title class="headline mb-2">{{ isAdd ? 'Create' : 'Edit' }} Seat</v-card-title>
         <v-card-text>
           <v-number-input
             v-model="currentSeat.seatNumber"
