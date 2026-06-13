@@ -18,6 +18,11 @@ const router = createRouter({
       name: "adminEvents",
       component: () => import("./views/AdminEvents.vue"),
     },
+      {
+      path: "/admin/seats",
+      name: "adminSeats",
+      component: () => import("./views/AdminSeats.vue"),
+    },
     {
       path: "/home",
       name: "home",
