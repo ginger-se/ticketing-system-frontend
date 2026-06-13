@@ -171,7 +171,7 @@ function closeSnackBar() {
             v-model="currentSeat.seatNumber"
             label="Seat Number"
             :max="10"
-            :min="0"
+            :min="1"
             required
           ></v-number-input>
           <v-select
