@@ -2,6 +2,7 @@
 import { onMounted } from "vue";
 import { ref, toRaw, computed, shallowRef } from "vue";
 import { useRouter } from "vue-router";
+import SeatServices from "../services/SeatServices";
 
 const router = useRouter();
 const screen = ref('screen');
@@ -17,6 +18,7 @@ const seatColor = ref('seat-color');
 const legendColor = ref('legend-color');
 const continueButton = ref('continue-button');
 const isNonClickableButton = shallowRef(true);
+const user = ref(null);
 
 const numberOfSelectedSeats = computed(() => {
   return selectedSeats.value.length;
@@ -35,6 +37,10 @@ const seatMap = ref([
   [ 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1 ],
 ]);
 
+const retrievedSeats = ref([]);
+const seatMap = ref(new Map());
+
+
 const headerRow = ['', 1, 2, '', 3, 4, 5, 6, 7, 8, 9, 10, '', 11, 12];
 
 const snackbar = ref({
@@ -44,7 +50,38 @@ const snackbar = ref({
 });
 
 onMounted(async () => {
+  await getSeats();
+  user.value = JSON.parse(localStorage.getItem("user"));
 });
+
+async function getSeats() {
+  await SeatServices.getSeats()
+    .then((response) => {
+      retrievedSeats.value = Array.isArray(response.data)
+        ? response.data
+        : [];
+      console.log(retrievedSeats.value);
+      convertToSeatMap(retrievedSeats);
+    })
+    .catch((error) => {
+      console.log(error);
+      retrievedSeats.value = [];
+      snackbar.value.value = true;
+      snackbar.value.color = "error";
+      snackbar.value.text = error.response?.data?.message || "Error loading seats";
+    });
+}
+
+function convertToSeatMap(rawData) {
+  for (const seat of rawData) {
+    if (seatMap.value.has(seat.rowNumber)) {
+      seatMap.value.get(seat.rowNumber).push(seat); 
+    }
+    else {
+      seatMap.value.set(seat.rowNumber, [seat]);
+    }
+  }
+}
 
 function closeSnackBar() {
   snackbar.value.value = false;
@@ -54,33 +91,25 @@ function mapNumberToLetter(num) {
   return String.fromCharCode(num + 65);
 }
 
-function locateSeat(rowIndex, colIndex) {
-  const rowLetter = mapNumberToLetter(rowIndex);
-  const seatNum = colIndex + 1;
-  const index = selectedSeats.value.findIndex(seat => seat.row === rowLetter && seat.seatNumber === seatNum);
-
-  return { rowLetter, seatNum, index };
+function locateSeat(rowNumber, seatNumber) {
+  return selectedSeats.value.findIndex(seat => seat.rowNumber === rowNumber && seat.seatNumber === seatNumber);
 }
 
-function seatToggle(rowIndex, colIndex) {
-  const { rowLetter, seatNum, index } = locateSeat(rowIndex, colIndex);
+function seatToggle(seat) {
+  const found = locateSeat(seat);
 
-  if (index === -1) {
-    selectedSeats.value.push({
-      row: rowLetter,
-      seatNumber: seatNum
-    });
+  if (found === -1) {
+    selectedSeats.value.push(seat);
   }
   else {
-    selectedSeats.value.splice(index, 1);
+    selectedSeats.value.splice(found, 1);
   }
-  
-  console.log(selectedSeats.value);
 }
 
-function isSeatSelected(rowIndex, colIndex) {
-  return locateSeat(rowIndex, colIndex).index !== -1;
+function isSeatSelected(seat) {
+  return selectedSeats.value.includes(seat);
 }
+
 </script>
 
 <template>
@@ -94,7 +123,7 @@ function isSeatSelected(rowIndex, colIndex) {
         <v-card :class="seatingCard" class="rounded-md elevation-2">
           <v-row justify="center" :class="screen" class="mb-3 bg-grey-darken-4">SCREEN</v-row>
           <div :class="seatingContainer">
-            <!-- Generate the column headers -->
+          <!-- Generate the column headers -->
             <template v-for="header in headerRow" :key="header">
               <div>
                 <v-btn variant="text" :class="colHeaders" :readonly="isNonClickableButton">
@@ -104,36 +133,30 @@ function isSeatSelected(rowIndex, colIndex) {
             </template>
 
             <!-- Loop through the rows in the seat map -->
-            <template v-for="(row, rowIndex) in seatMap" :key="rowIndex">
+            <template v-for="[rowNumber, seatsArray] in seatMap" :key="rowNumber">
               <div>
-                <v-btn variant="text" :class="rowHeaders" :readonly="isNonClickableButton">
-                  {{ mapNumberToLetter(rowIndex) }}              
+                <v-btn variant="text" :class="colHeaders" :readonly="isNonClickableButton">
+                  {{ rowNumber }}              
                 </v-btn>
               </div>
 
-              <!-- Loop through the columns in the seat map -->
-              <div v-for="(column, colIndex) in row" :key="colIndex">
-                <!-- Values of 1 in seat map are regular seats -->
-                <div v-if="column === 1" @click="seatToggle(rowIndex, colIndex)">
-                  <v-btn :class="isSeatSelected(rowIndex, colIndex) ? 'selected' : 'seatColor'" variant="text">
+              <!-- Loop through the seats within a row in the seat map -->
+              <div v-for="seat in seatsArray" :key="seat">
+                <div v-if="seat.isHandicap === false" @click="seatToggle(seat)">
+                  <v-btn :class="isSeatSelected(seat) ? 'selected' : 'seatColor'" variant="text">
                     <v-icon>
-                      {{ isSeatSelected(rowIndex, colIndex) ? 'mdi-sofa-single' : 'mdi-sofa-single-outline' }}
+                      {{ isSeatSelected(seat) ? 'mdi-sofa-single' : 'mdi-sofa-single-outline' }}
                     </v-icon>
+                  </v-btn>
+                  <v-btn v-if="seat.seatNumber === 2 || seat.seatNumber === 8" variant="text" :readonly="isNonClickableButton">
                   </v-btn>
                 </div>
 
-                <!-- Values of 2 in seat map are handicap seats -->
-                <div v-else-if="column === 2" @click="seatToggle(rowIndex, colIndex)">
-                  <v-btn :class="isSeatSelected(rowIndex, colIndex) ? 'selected' : 'wheelchair'" variant="text">
+                <div v-else @click="seatToggle(seat)">
+                  <v-btn :class="isSeatSelected(seat) ? 'selected' : 'wheelchair'" variant="text">
                     <v-icon>
                       mdi-wheelchair-accessibility
                     </v-icon>
-                  </v-btn>
-                </div>
-
-                <!-- Values of 0 in seat map are empty spaces for aisles -->
-                <div v-else-if="column === 0">
-                  <v-btn variant="text" :readonly="isNonClickableButton">
                   </v-btn>
                 </div>
               </div>
