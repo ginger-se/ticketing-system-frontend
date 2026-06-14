@@ -37,6 +37,7 @@ async function addSeat() {
       snackbar.value.value = true;
       snackbar.value.color = "green";
       snackbar.value.text = `${'Seat at row ' + currentSeat.value.rowNumber + ' seat ' + currentSeat.value.seatNumber} added successfully!`;
+      modalOpen.value = false;
     })
     .catch((error) => {
       console.log(error);
@@ -53,6 +54,7 @@ async function updateSeat() {
       snackbar.value.value = true;
       snackbar.value.color = "green";
       snackbar.value.text = `${'Seat at row ' + currentSeat.value.rowNumber + ' seat ' + currentSeat.value.seatNumber} updated successfully!`;
+      modalOpen.value = false;
     })
     .catch((error) => {
       console.log(error);
@@ -86,7 +88,6 @@ function submitModal(){
   else {
     updateSeat();
   }
-  modalOpen.value = false;
 }
 
 function openAdd() {
