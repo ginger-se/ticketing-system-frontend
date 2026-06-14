@@ -69,6 +69,8 @@ async function getStats() {
       </v-col>
       <v-col cols="12" sm="6">
         <v-btn block color="accent" :to="{ name: 'adminEvents' }">Manage Events</v-btn>
+      </v-col><v-col cols="12" sm="6">
+        <v-btn block color="accent" :to="{ name: 'adminSeats' }">Manage Seats</v-btn>
       </v-col>
     </v-row>
 
