@@ -54,7 +54,7 @@ const router = createRouter({
       component: () => import("./views/AdminDashboard.vue"),
     },
     {
-      path: "/seatmap",
+      path: "/shows/:id/events/seatmap",
       name: "seatmap",
       component: () => import("./views/SeatMap.vue"),
     },
