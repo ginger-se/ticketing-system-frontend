@@ -1,10 +1,11 @@
 <script setup>
 import { onMounted, ref } from "vue";
-import { useRoute } from "vue-router";
+import { useRoute, useRouter } from "vue-router";
 import EventServices from "../services/EventServices.js";
 import ShowServices from "../services/ShowServices.js";
 
 const route = useRoute();
+const router = useRouter();
 const events = ref([]);
 const show = ref({});
 const user = ref(null);
@@ -43,6 +44,10 @@ async function getEvents() {
       snackbar.value.text = error.response?.data?.message || "Error loading events";
     });
 }
+
+function openSeatMap() {
+  router.push({ name: "seatmap" });
+}
 </script>
 
 <template>
@@ -77,6 +82,7 @@ async function getEvents() {
             <v-btn
               class="bg-primary"
               :disabled="event.status !== 'Scheduled'"
+              @click="openSeatMap()"
             >
               Book Now
             </v-btn>
