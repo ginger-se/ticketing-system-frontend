@@ -1,8 +1,9 @@
 <script setup>
-import { onMounted, ref } from "vue";
+import { onMounted, ref, computed } from "vue";
 import ShowServices from "../services/ShowServices.js";
 
 const shows = ref([]);
+const search = ref("");
 const user = ref(null);
 const snackbar = ref({
   value: false,
@@ -28,6 +29,13 @@ async function getShows() {
       snackbar.value.text = error.response?.data?.message || "Error loading shows";
     });
 }
+const filteredShows = computed(() => {
+  if (!search.value) return shows.value;
+  const term = search.value.toLowerCase();
+  return shows.value.filter((show) =>
+    show.title?.toLowerCase().includes(term)
+  );
+});
 </script>
 
 <template>
@@ -37,8 +45,17 @@ async function getShows() {
         Offered Shows
       </v-card-title>
 
+        <v-text-field
+        v-model="search"
+        placeholder="Search by show name..."
+        prepend-inner-icon="mdi-magnify"
+        variant="outlined"
+        density="comfortable"
+        class="mb-4"
+        ></v-text-field>
+
       <v-card
-        v-for="show in shows"
+        v-for="show in filteredShows"
         :key="show.id"
         class="my-5 elevation-2"
         variant="outlined"
@@ -55,7 +72,7 @@ async function getShows() {
         </div>
       </v-card>
 
-      <v-card v-if="shows.length === 0" class="my-5 elevation-2" variant="outlined">
+      <v-card v-if="filteredShows.length === 0" class="my-5 elevation-2" variant="outlined">
         <v-card-text>No shows available at this time.</v-card-text>
       </v-card>
 
