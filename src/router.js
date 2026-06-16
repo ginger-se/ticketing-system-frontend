@@ -58,6 +58,11 @@ const router = createRouter({
       name: "seatmap",
       component: () => import("./views/SeatMap.vue"),
     },
+    {
+      path: "/shows/:id/events/seatmap/booking",
+      name: "booking",
+      component: () => import("./views/Booking.vue"),
+    },
   ],
 });
 

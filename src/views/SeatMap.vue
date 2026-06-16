@@ -103,6 +103,10 @@ function calculateSeatCol(seatNumber) {
 function closeSnackBar() {
   snackbar.value.value = false;
 }
+
+function openBooking() {
+  router.push({ name: "booking" });
+}
 </script>
 
 <template>
@@ -178,7 +182,12 @@ function closeSnackBar() {
             </v-row>
           </v-card>
 
-          <v-btn :class="continueButton" color="primary" class="mt-6">
+          <v-btn
+            :class="continueButton" 
+            color="primary" 
+            class="mt-6"
+            @click="openBooking()"
+          >
             Continue to Checkout ({{ numberOfSelectedSeats }} {{ numberOfSelectedSeats === 1 ? "seat" : "seats" }})
           </v-btn>
         </v-col>
