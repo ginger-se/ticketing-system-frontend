@@ -1,9 +1,9 @@
 <script setup>
 import { ref, onMounted } from "vue";
-import { useRouter } from "vue-router";
+//import { useRouter } from "vue-router";
 import DashboardServices from "../services/dashboardServices.js";
 
-const router = useRouter();
+//const router = useRouter();
 const stats = ref({ totalSales: 0, ticketsSold: 0, upcomingShows: 0, activeUsers: 0 });
 const snackbar = ref({ value: false, color: "", text: "" });
 
@@ -71,6 +71,9 @@ async function getStats() {
         <v-btn block color="accent" :to="{ name: 'adminEvents' }">Manage Events</v-btn>
       </v-col><v-col cols="12" sm="6">
         <v-btn block color="accent" :to="{ name: 'adminSeats' }">Manage Seats</v-btn>
+      </v-col>
+      <v-col cols="12" sm="6">
+        <v-btn block color="accent" :to="{ name: 'adminReports' }">View Reports</v-btn>
       </v-col>
     </v-row>
 

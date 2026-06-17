@@ -58,6 +58,11 @@ const router = createRouter({
       name: "seatmap",
       component: () => import("./views/SeatMap.vue"),
     },
+    {
+      path: "/admin/reports",
+      name: "adminReports",
+      component: () => import("./views/AdminReports.vue"),
+ },
   ],
 });
 

@@ -46,7 +46,7 @@ const checkEmail = ((value) => {
 });
 
 const checkPassword = ((value) => {
-  if (value?.length > 8 ) return true;
+  if (value?.length >= 8 ) return true;
   return "Password must be at least 8 characters."
 })
 
@@ -95,8 +95,9 @@ async function login() {
       snackbar.value.value = true;
       snackbar.value.color = "green";
       snackbar.value.text = "Login successful!";
+      console.log("userType:", data.data.userType)
       if (data.data.userType === "admin") {
-        router.push({ name: "adminDashboard" });
+        router.push({ name: "adminDashboard" }).catch(err => console.log("Nav error:", err));;
       } 
       else {router.push({ name: "home" });}
     })
