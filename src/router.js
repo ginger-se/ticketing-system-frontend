@@ -59,10 +59,17 @@ const router = createRouter({
       component: () => import("./views/SeatMap.vue"),
     },
     {
+<<<<<<< HEAD
       path: "/shows/:id/events/seatmap/booking",
       name: "booking",
       component: () => import("./views/Booking.vue"),
     },
+=======
+      path: "/admin/reports",
+      name: "adminReports",
+      component: () => import("./views/AdminReports.vue"),
+ },
+>>>>>>> 5f4fe1b (add admin reports page with revenue, tickets, occupancy, and sales by show table)
   ],
 });
 
