@@ -59,6 +59,11 @@ const router = createRouter({
       component: () => import("./views/SeatMap.vue"),
     },
     {
+      path: "/admin/reports",
+      name: "adminReports",
+      component: () => import("./views/AdminReports.vue"),
+    },
+    {
 <<<<<<< HEAD
       path: "/shows/:id/events/seatmap/booking",
       name: "booking",
