@@ -105,6 +105,7 @@ function closeSnackBar() {
 }
 
 function openBooking() {
+  window.localStorage.setItem("selectedSeats", JSON.stringify(selectedSeats.value));
   router.push({ name: "booking" });
 }
 </script>
