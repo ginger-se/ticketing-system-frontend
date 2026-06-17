@@ -62,7 +62,12 @@ const router = createRouter({
       path: "/admin/reports",
       name: "adminReports",
       component: () => import("./views/AdminReports.vue"),
- },
+    },
+    {
+      path: "/shows/:id/events/seatmap/booking",
+      name: "booking",
+      component: () => import("./views/Booking.vue"),
+    },
   ],
 });
 
