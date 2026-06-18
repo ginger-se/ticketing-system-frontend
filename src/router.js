@@ -69,11 +69,17 @@ const router = createRouter({
       component: () => import("./views/Booking.vue"),
     },
     {
-  path: "/refund/:paymentId",
-  name: "requestRefund",
-  component: () => import("./views/Refund.vue"),
-  props: true,
-},
+      path: "/refund/:paymentId",
+      name: "requestRefund",
+      component: () => import("./views/Refund.vue"),
+      props: true,
+    },
+
+    {
+      path: "/admin/refunds",
+      name: "adminRefunds",
+      component: () => import("./views/AdminRefunds.vue"),
+    },
   ],
 });
 

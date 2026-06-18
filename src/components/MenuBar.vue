@@ -32,7 +32,7 @@ function logout() {
 <template>
   <div>
     <v-app-bar color="primary" app dark>
-      <router-link :to="{ name: 'home' }">
+      <router-link :to="{ name: user?.userType === 'admin' ? 'adminDashboard' : 'home' }">
         <v-img
           class="mx-2"
           :src="logoURL"

@@ -38,7 +38,7 @@ async function getReport() {
 
     <v-row>
       <v-col cols="12" sm="6" md="3">
-        <v-card class="rounded-lg elevation-5 text-center pa-4" color="primary">
+        <v-card class="rounded-lg elevation-5 text-center pa-4" color="accent">
           <v-icon size="40" color="white">mdi-cash</v-icon>
           <h3 class="text-white mt-2">Total Revenue</h3>
           <p class="text-h5 text-white font-weight-bold">${{ report.totalRevenue }}</p>
@@ -52,14 +52,14 @@ async function getReport() {
         </v-card>
       </v-col>
       <v-col cols="12" sm="6" md="3">
-        <v-card class="rounded-lg elevation-5 text-center pa-4" color="success">
+        <v-card class="rounded-lg elevation-5 text-center pa-4" color="accent">
           <v-icon size="40" color="white">mdi-account-group</v-icon>
           <h3 class="text-white mt-2">Avg Occupancy</h3>
           <p class="text-h5 text-white font-weight-bold">{{ report.avgOccupancy }}%</p>
         </v-card>
       </v-col>
       <v-col cols="12" sm="6" md="3">
-        <v-card class="rounded-lg elevation-5 text-center pa-4" color="secondary">
+        <v-card class="rounded-lg elevation-5 text-center pa-4" color="accent">
           <v-icon size="40" color="white">mdi-refresh</v-icon>
           <h3 class="text-white mt-2">Refunds Issued</h3>
           <p class="text-h5 text-white font-weight-bold">{{ report.refundsIssued }}</p>

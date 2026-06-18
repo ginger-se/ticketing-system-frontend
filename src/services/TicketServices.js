@@ -19,4 +19,8 @@ export default {
   deleteTicket(ticketId) {
     return apiClient.delete("tickets/" + ticketId);
   },
+
+  adminRefundTicket(ticketId, refundAmount) {
+    return apiClient.delete("tickets/" + ticketId + "/refund", { data: { refundAmount } });
+  },
 };
