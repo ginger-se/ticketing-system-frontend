@@ -7,18 +7,18 @@ const router = createRouter({
       path: "/",
       name: "login",
       component: () => import("./views/Login.vue"),
-    }, 
-     {
+    },
+    {
       path: "/admin/shows",
       name: "adminShows",
       component: () => import("./views/AdminShows.vue"),
     },
-     {
+    {
       path: "/admin/events",
       name: "adminEvents",
       component: () => import("./views/AdminEvents.vue"),
     },
-      {
+    {
       path: "/admin/seats",
       name: "adminSeats",
       component: () => import("./views/AdminSeats.vue"),
@@ -27,12 +27,12 @@ const router = createRouter({
       path: "/home",
       name: "home",
       component: () => import("./views/Home.vue"),
-    }, 
-     {
+    },
+    {
       path: "/shows",
       name: "shows",
       component: () => import("./views/ShowList.vue"),
-    }, 
+    },
     {
       path: "/shows/:id/events",
       name: "eventList",
@@ -46,7 +46,7 @@ const router = createRouter({
     {
       path: "/profile",
       name: "profile",
-      component: () => import("./views/ShowList.vue"),
+      component: () => import("./views/Ticket.vue"),
     },
     {
       path: "/admin/dashboard",
@@ -68,6 +68,12 @@ const router = createRouter({
       name: "booking",
       component: () => import("./views/Booking.vue"),
     },
+    {
+  path: "/refund/:paymentId",
+  name: "requestRefund",
+  component: () => import("./views/Refund.vue"),
+  props: true,
+},
   ],
 });
 
