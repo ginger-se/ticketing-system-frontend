@@ -1,0 +1,170 @@
+<script setup>
+import { onMounted, ref } from 'vue';
+import { useRouter } from 'vue-router';
+
+const router = useRouter();
+const innerCardDiv = ref('inner-card-div');
+const cardStyle = ref('card-style');
+const backBtn = ref('back-btn');
+const continueBtn = ref('continue-btn');
+const paymentMethod = ref('payment-method');
+const cardHeader = ref('card-header');
+const selectedPayment = ref('')
+
+onMounted(async () => {
+  // selectedPayment.value = 'Card';
+});
+
+function updatePaymentMethod(paymentType) {
+  selectedPayment.value = paymentType;
+}
+
+function openBooking() {
+  router.push({ name: "booking" });
+}
+</script>
+
+<template>
+  <v-container>
+    <v-row id="body-row" justify="center">
+      <v-col id="body-col" cols="8">
+
+        <div :class="cardHeader">Payment Method</div>
+
+        <v-card :class="cardStyle" class="rounded-md" variant="outlined">
+          <div :class="innerCardDiv">
+            <div class="d-flex justify-space-between ga-8">
+              <v-btn 
+                :class="paymentMethod"
+                :ripple="false"
+                prepend-icon="mdi-credit-card-outline"
+                variant="outlined"
+                @click="updatePaymentMethod('Card')"
+              >
+                Card
+              </v-btn>
+              <v-btn 
+                :class="paymentMethod"
+                :ripple="false"
+                variant="outlined"
+                @click="updatePaymentMethod('GPay')"
+              >
+                G Pay
+              </v-btn>
+              <v-btn 
+                :class="paymentMethod"
+                :ripple="false"
+                variant="outlined"
+                @click="updatePaymentMethod('Apple Pay')"
+              >
+                Apple Pay
+              </v-btn>
+            </div>
+
+            <div v-if="selectedPayment === 'Card'">
+              <div class="text-body-large text-large-emphasis mb-1 mt-4">Card Number</div>
+              <v-text-field
+                density="compact"
+                placeholder="1234 5678 9012 3456"
+                variant="outlined"
+                required
+                bgColor="#f5f5f5"
+              ></v-text-field>
+
+              <div class="d-flex justify-space-between ga-4">
+                <div class="flex-grow-1">
+                  <div class="text-body-large text-large-emphasis mb-1">Expiry Date</div>
+                  <v-text-field
+                    density="compact"
+                    placeholder="1234 5678 9012 3456"
+                    variant="outlined"
+                    required
+                    bgColor="#f5f5f5"
+                  ></v-text-field>
+                </div>
+                <div class="flex-grow-1">
+                  <div class="text-body-large text-large-emphasis mb-1">CVV</div>
+                  <v-text-field
+                    density="compact"
+                    placeholder="123"
+                    variant="outlined"
+                    required
+                    bgColor="#f5f5f5"
+                  ></v-text-field>
+                </div>
+              </div>
+            </div>
+
+            <div v-else class="mb-8">
+
+            </div>
+
+            <div class="d-flex ga-3 mt-4">
+              <v-btn 
+                :class="backBtn"
+                variant="flat"
+                prepend-icon="mdi-arrow-left"
+                @click="openBooking()"
+              >
+                Back
+              </v-btn>
+              <v-btn
+                :class="continueBtn" 
+                variant="flat" 
+                color="primary"
+              > Complete Purchase - 
+              </v-btn>
+            </div>
+          </div>
+        </v-card>
+      </v-col>
+    </v-row>
+  </v-container>
+</template>
+
+<style scoped>
+.card-header {
+  font-weight: 500;
+  letter-spacing: 2%;
+  font-size: larger;
+  margin-bottom: 1rem;
+}
+
+.inner-card-div {
+  margin: 1.2rem;
+}
+
+.card-style {
+  background-color: #ffffff;
+  border: 1px solid #c3c3c3;
+}
+
+.back-btn, .continue-btn {
+  height: 3rem;
+  text-transform: capitalize;
+}
+
+.back-btn {
+  width: 15%;
+  border: 1px solid #c3c3c3;
+  background-color: #f5f5f5;
+}
+.continue-btn {
+  flex-grow: 1;
+}
+
+.payment-method {
+  flex-grow: 1;
+  border: 2px solid #c3c3c3;
+  height: 2.6rem;
+}
+
+.payment-method:focus {
+  border: 2px solid rgb(143, 6, 6);
+  background-color: rgba(252, 225, 225, 0.219);
+}
+
+#body-row {
+  margin: 0;
+}
+</style>
