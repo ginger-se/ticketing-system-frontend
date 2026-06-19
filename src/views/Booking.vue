@@ -1,5 +1,5 @@
 <script setup>
-import { onMounted, ref, computed, shallowRef } from "vue";
+import { onMounted, ref, computed } from "vue";
 import { useRouter } from "vue-router";
 
 const router = useRouter();
@@ -37,8 +37,8 @@ const promos  = ref([
 ]);
 
 function applyPromo() {
-  if (promoInput.value in promos.value[0]) {
-    activePromo.value = promos.value[0][promoInput.value];
+  if (promoInput.value.trim().toUpperCase() in promos.value[0]) {
+    activePromo.value = promos.value[0][promoInput.value.trim().toUpperCase()];
   }
 }
 
@@ -161,7 +161,7 @@ function openPayment() {
                   <div v-else>
                     <div class="d-flex justify-space-between mb-4">
                       <div :class="promoText">
-                        Promo: <span style="letter-spacing: 4%;">{{ promoInput }}</span> ({{ activePromo * 100 }}% off)
+                        Promo: <span style="letter-spacing: 4%;">{{ promoInput.trim().toUpperCase() }}</span> ({{ activePromo * 100 }}% off)
                       </div>   
                       <v-icon 
                         @click="removePromo"

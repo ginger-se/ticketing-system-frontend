@@ -34,7 +34,7 @@ async function getStats() {
 
     <v-row>
       <v-col cols="12" sm="6" md="3">
-        <v-card class="rounded-lg elevation-5 text-center pa-4" color="primary">
+        <v-card class="rounded-lg elevation-5 text-center pa-4" color="accent">
           <v-icon size="40" color="white">mdi-cash</v-icon>
           <h3 class="text-white mt-2">Total Sales</h3>
           <p class="text-h5 text-white font-weight-bold">${{ stats.totalSales }}</p>
@@ -55,7 +55,7 @@ async function getStats() {
         </v-card>
       </v-col>
       <v-col cols="12" sm="6" md="3">
-        <v-card class="rounded-lg elevation-5 text-center pa-4" color="secondary">
+        <v-card class="rounded-lg elevation-5 text-center pa-4" color="accent">
           <v-icon size="40" color="white">mdi-account-group</v-icon>
           <h3 class="text-white mt-2">Active Users</h3>
           <p class="text-h5 text-white font-weight-bold">{{ stats.activeUsers }}</p>
@@ -68,13 +68,16 @@ async function getStats() {
         <v-btn block color="primary" :to="{ name: 'adminShows' }">Manage Shows</v-btn>
       </v-col>
       <v-col cols="12" sm="6">
-        <v-btn block color="accent" :to="{ name: 'adminEvents' }">Manage Events</v-btn>
+        <v-btn block color="primary" :to="{ name: 'adminEvents' }">Manage Events</v-btn>
       </v-col><v-col cols="12" sm="6">
-        <v-btn block color="accent" :to="{ name: 'adminSeats' }">Manage Seats</v-btn>
+        <v-btn block color="primary" :to="{ name: 'adminSeats' }">Manage Seats</v-btn>
       </v-col>
       <v-col cols="12" sm="6">
-        <v-btn block color="accent" :to="{ name: 'adminReports' }">View Reports</v-btn>
+        <v-btn block color="primary" :to="{ name: 'adminReports' }">View Reports</v-btn>
       </v-col>
+      <v-col cols="12" sm="6">
+        <v-btn block color="primary" :to="{ name: 'adminRefunds' }">Manage Refunds</v-btn>
+     </v-col>
     </v-row>
 
     <v-snackbar v-model="snackbar.value" rounded="pill">
