@@ -86,6 +86,10 @@ const totalPrice = computed(() => {
 function openSeatMap() {
   router.push({ name: "seatmap" });
 }
+
+function openPayment() {
+  router.push({ name: "payment" });
+}
 </script>
 
 <template>
@@ -256,6 +260,7 @@ function openSeatMap() {
               :class="continueBtn" 
               variant="flat" 
               color="primary"
+              @click="openPayment()"
             >
               Continue <span class="mx-1" style="text-transform: lowercase;"> to </span> Payment
             </v-btn>
