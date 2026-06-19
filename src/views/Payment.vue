@@ -1,6 +1,7 @@
 <script setup>
 import { onMounted, ref } from 'vue';
 import { useRouter } from 'vue-router';
+import OrderServices from '../services/OrderServices';
 
 const router = useRouter();
 const innerCardDiv = ref('inner-card-div');
@@ -9,11 +10,32 @@ const backBtn = ref('back-btn');
 const continueBtn = ref('continue-btn');
 const paymentMethod = ref('payment-method');
 const cardHeader = ref('card-header');
-const selectedPayment = ref('')
+const selectedPayment = ref('');
+const user = ref(null);
+const selectedSeats = ref([]);
+const seatIds = ref([]);
+const totalAmount = ref(0);
+const event = ref(null);
+const snackbar = ref({
+  value: false,
+  color: "",
+  text: "",
+});
 
 onMounted(async () => {
   // selectedPayment.value = 'Card';
+  user.value = JSON.parse(localStorage.getItem("user"));
+  event.value = JSON.parse(localStorage.getItem("event"));
+  selectedSeats.value = JSON.parse(localStorage.getItem("selectedSeats"));
+  totalAmount.value = parseFloat(JSON.parse(localStorage.getItem("totalAmount")));
+  buildSeatIds();
 });
+
+function buildSeatIds () {
+  selectedSeats.value.forEach((seat) => {
+    seatIds.value.push(seat.id); 
+  })
+}
 
 function updatePaymentMethod(paymentType) {
   selectedPayment.value = paymentType;
@@ -21,6 +43,36 @@ function updatePaymentMethod(paymentType) {
 
 function openBooking() {
   router.push({ name: "booking" });
+}
+
+async function completePurchase() {
+  if (!selectedPayment.value) {
+    snackbar.value.value = true;
+    snackbar.value.color = "error";
+    snackbar.value.text = "Payment method must be selected!";
+    return;
+  }
+
+  const checkoutDetails = {
+    userId: user.value.id,
+    eventId: event.value.id,
+    totalAmount: totalAmount.value,
+    paymentMethod: selectedPayment.value,
+    seatIds: seatIds.value
+  };
+
+  await OrderServices.create(checkoutDetails)
+    .then((response) => {
+      snackbar.value.value = true;
+      snackbar.value.color = "green";
+      snackbar.value.text = "Order created successfully!";
+    })
+    .catch((error) => {
+      console.log(error);
+      snackbar.value.value = true;
+      snackbar.value.color = "error";
+      snackbar.value.text = error.response?.data?.message || "Error completing purchase!";
+    });
 }
 </script>
 
@@ -112,7 +164,8 @@ function openBooking() {
                 :class="continueBtn" 
                 variant="flat" 
                 color="primary"
-              > Complete Purchase - 
+                @click="completePurchase()"
+              > Complete Purchase - ${{ totalAmount.toFixed(2) }}
               </v-btn>
             </div>
           </div>

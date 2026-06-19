@@ -88,6 +88,7 @@ function openSeatMap() {
 }
 
 function openPayment() {
+  window.localStorage.setItem("totalAmount", JSON.stringify(totalPrice.value));
   router.push({ name: "payment" });
 }
 </script>

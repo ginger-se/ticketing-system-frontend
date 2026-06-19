@@ -40,7 +40,8 @@ const filteredEvents = computed(() => {
   );
 });
 
-function openSeatMap() {
+function openSeatMap(event) {
+  window.localStorage.setItem("event", JSON.stringify(event.value));
   router.push({ name: "seatmap" });
 }
 </script>
@@ -105,7 +106,7 @@ function openSeatMap() {
             <v-btn
               class="bg-primary"
               :disabled="event.status !== 'Scheduled'"
-              @click="openSeatMap()"
+              @click="openSeatMap(event)"
             >
               Book Now
             </v-btn>
