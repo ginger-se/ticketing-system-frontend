@@ -1,10 +1,11 @@
 <script setup>
 import { onMounted } from "vue";
 import { ref, toRaw, computed, shallowRef } from "vue";
-import { useRouter } from "vue-router";
+import { useRouter, useRoute } from "vue-router";
 import SeatServices from "../services/SeatServices";
 
 const router = useRouter();
+const route = useRoute();
 const screen = ref('screen');
 const seatingCard = ref('seating-card');
 const seatingContainer = ref('seating-container');
@@ -18,9 +19,9 @@ const rowHeaders = ref('row-headers');
 const colHeaders = ref('col-headers');
 const seatColor = ref('seat-color');
 const legendColor = ref('legend-color');
-const continueButton = ref('continue-button');
+const backBtn = ref('back-button');
+const continueBtn = ref('continue-button');
 const isNonClickableButton = shallowRef(true);
-const user = ref(null);
 
 const numberOfSelectedSeats = computed(() => {
   return selectedSeats.value.length;
@@ -36,7 +37,6 @@ const snackbar = ref({
 
 onMounted(async () => {
   await getSeats();
-  user.value = JSON.parse(localStorage.getItem("user"));
 });
 
 async function getSeats() {
@@ -106,7 +106,11 @@ function closeSnackBar() {
 
 function openBooking() {
   window.localStorage.setItem("selectedSeats", JSON.stringify(selectedSeats.value));
-  router.push({ name: "booking" });
+  router.push({ name: "booking", params: { id: route.params.id, eventId: route.params.eventId }});
+}
+
+function returnToEvents() {
+  router.push({ name: "eventList" });
 }
 </script>
 
@@ -183,14 +187,24 @@ function openBooking() {
             </v-row>
           </v-card>
 
-          <v-btn
-            :class="continueButton" 
-            color="primary" 
-            class="mt-6"
-            @click="openBooking()"
-          >
-            Continue to Checkout ({{ numberOfSelectedSeats }} {{ numberOfSelectedSeats === 1 ? "seat" : "seats" }})
-          </v-btn>
+          <div class="d-flex ga-3 mt-6">
+            <v-btn 
+              :class="backBtn"
+              variant="flat"
+              prepend-icon="mdi-arrow-left"
+              @click="returnToEvents()"
+            >
+              Back
+            </v-btn>
+            <v-btn
+              :class="continueBtn" 
+              variant="flat" 
+              color="primary"
+              @click="openBooking()"
+            >
+              Continue to Checkout ({{ numberOfSelectedSeats }} {{ numberOfSelectedSeats === 1 ? "seat" : "seats" }})
+            </v-btn>
+          </div>
         </v-col>
       </v-row>
     </div>
@@ -263,8 +277,17 @@ function openBooking() {
   align-items: start;
 }
 
+.back-button {
+  width: 15%;
+  border: 1px solid #c3c3c3;
+  background-color: #ececec;
+}
+
 .continue-button {
-  width: 100%;
+  flex-grow: 1;
+}
+
+.continue-button, .back-button {
   height: 3.2rem;
 }
 </style>

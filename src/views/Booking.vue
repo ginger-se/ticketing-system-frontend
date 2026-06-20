@@ -1,8 +1,11 @@
 <script setup>
 import { onMounted, ref, computed } from "vue";
-import { useRouter } from "vue-router";
+import { useRouter, useRoute } from "vue-router";
+import ShowServices from "../services/ShowServices";
+import EventServices from "../services/EventServices";
 
 const router = useRouter();
+const route = useRoute();
 const user = ref(null);
 const selectedSeats = ref([]);
 const colHeader = ref('col-header');
@@ -19,6 +22,19 @@ const promoText = ref('promo-text');
 const promoApply = ref('promo-apply');
 const discount = ref('discount');
 const chipPrice = ref('chip-price');
+const email = ref(null);
+const phoneNumber = ref(null);
+const showId = ref(null);
+const eventId = ref(null);
+const selectedShow = ref(null);
+const selectedEvent = ref(null);
+const isValidForm = ref(false);
+
+const snackbar = ref({
+  value: false,
+  color: "",
+  text: "",
+});
 
 const prices = [
   { age: 'Adult (Ages 13+)', price: 15.00 },
@@ -58,10 +74,50 @@ function getSelectedSeats() {
 }
 
 onMounted(async () => {
-  user.value = JSON.parse(localStorage.getItem("user"));
+  const storedUser = localStorage.getItem("user");
+  if (storedUser && storedUser !== "null" && storedUser !== "undefined") {
+    user.value = JSON.parse(storedUser);
+    email.value = user.value.email;
+    phoneNumber.value = user.value.phoneNumber;
+  }
+  else {
+    user.value = null;
+  }
+  showId.value = route.params.id;
+  eventId.value = route.params.eventId;
+  await getShowDetails();
+  await getEventDetails();
   getSelectedSeats();
   addTicketType(selectedSeats.value);
 });
+
+async function getShowDetails() {
+  await ShowServices.getShow(showId.value)
+    .then((response) => {
+      selectedShow.value = response.data;
+      console.log(selectedShow.value);
+    })
+    .catch((error) => {
+      console.log(error);
+      snackbar.value.value = true;
+      snackbar.value.color = "error";
+      snackbar.value.text = error.response?.data?.message || "Error retrieving show details";
+    });
+}
+
+async function getEventDetails() {
+  await EventServices.getEvent(eventId.value)
+    .then((response) => {
+      selectedEvent.value = response.data.find(e => e.id == eventId.value);
+      console.log(selectedEvent.value);
+    })
+    .catch((error) => {
+      console.log(error);
+      snackbar.value.value = true;
+      snackbar.value.color = "error";
+      snackbar.value.text = error.response?.data?.message || "Error retrieving event details";
+    });
+}
 
 const subtotalPrice = computed(() => {
   let subtotal = 0;
@@ -81,15 +137,43 @@ const discountPrice = computed(() => {
 
 const totalPrice = computed(() => {
   return subtotalPrice.value - discountPrice.value;
-})
+});
+
+const checkRequired = ((value) => {
+  if (value) return true;
+  return "A valid email is required.";
+});
+
+const checkEmail = ((value) => {
+  if (/.+@.+\..+/.test(value)) return true;
+  return "E-mail must be valid.";
+});
+
+const requiredRules = [ checkRequired ];
+
+const emailRules = [ checkRequired, checkEmail ];
+
+const numberOfSelectedSeats = computed(() => {
+  return selectedSeats.value.length;
+});
 
 function openSeatMap() {
   router.push({ name: "seatmap" });
 }
 
 function openPayment() {
+  if (numberOfSelectedSeats.value < 1) {
+    snackbar.value.value = true;
+    snackbar.value.color = "error";
+    snackbar.value.text = "No seats have been selected!";
+    return;
+  }
   window.localStorage.setItem("totalAmount", JSON.stringify(totalPrice.value));
-  router.push({ name: "payment" });
+  router.push({ name: "payment", params: { id: route.params.id, eventId: route.params.eventId }});
+}
+
+function closeSnackBar() {
+  snackbar.value.value = false;
 }
 </script>
 
@@ -104,7 +188,15 @@ function openPayment() {
               <v-card :class="cardStyle" class="rounded-md" variant="outlined">
                 <div :class="innerCardDiv">
   
-                    Need to insert the show details here
+                  <div v-if="selectedShow && selectedEvent" class="d-flex justify-space-between">
+                    <div>
+                      {{ selectedShow.title }}
+                    </div>
+                    <div>
+                      {{ new Date(selectedEvent.startTime).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }) }}
+                      - {{ new Date(selectedEvent.startTime).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }) }}                    
+                    </div>
+                  </div>
     
                   <v-container class="mb-1">
                     <v-divider></v-divider>
@@ -212,39 +304,43 @@ function openPayment() {
               </v-card>
             </v-col>
   
-            <v-col style="flex-basis: 50%;" class="px-0"> 
-              <div :class="colHeader">Contact Information</div>
-              <v-card :class="cardStyle" class="rounded-md" variant="outlined">
-                <div :class="innerCardDiv">
-                  <div class="mb-1">Email <span :class="red">*</span></div>
-                  <v-text-field
-                    density="compact"
-                    variant="outlined"
-                    bgColor="#f5f5f5"
-                  >
-                    {{ user === null ? 'your@email.com' : user.email }}
-                  </v-text-field>
 
-                  <div class="mb-1">Phone <span style="opacity: 0.6;">(optional)</span></div>
-                  <v-text-field
-                    density="compact"
-                    variant="outlined"
-                    bgColor="#f5f5f5"
-                  >
-                    {{ user === null ? '(555) 123-4567' : user.phoneNumber }}
-                  </v-text-field>
-                </div>
-              </v-card>
-                
-              <v-card-text id="price-info" class="mt-4">
-                <div :class="info">
-                  <div class="font-weight-medium mb-1">Age-based pricing</div>
-                  <div>Adult (Ages 13+): $15.00</div>
-                  <div>Child (Ages 9-12): $10.00</div>
-                  <div>Child (Free) (Ages 8 & under): Free</div>
-                  <div>Senior (Ages 65+): $10.00</div>
-                </div>
-              </v-card-text>
+            <v-col style="flex-basis: 50%;" class="px-0"> 
+              <v-form v-model="isValidForm">
+                <div :class="colHeader">Contact Information</div>
+                <v-card :class="cardStyle" class="rounded-md" variant="outlined">
+                  <div :class="innerCardDiv">
+                    <div class="mb-1">Email <span :class="red">*</span></div>
+                    <v-text-field
+                      v-model="email"
+                      density="compact"
+                      :rules="emailRules"
+                      variant="outlined"
+                      bgColor="#f5f5f5"
+                      placeholder="your@email.com"
+                    ></v-text-field>
+
+                    <div class="mb-1">Phone <span style="opacity: 0.6;">(optional)</span></div>
+                    <v-text-field
+                      v-model="phoneNumber"
+                      density="compact"
+                      variant="outlined"
+                      bgColor="#f5f5f5"
+                      placeholder="(555) 123-4567"
+                    ></v-text-field>
+                  </div>
+                </v-card>
+                  
+                <v-card-text id="price-info" class="mt-4">
+                  <div :class="info">
+                    <div class="font-weight-medium mb-1">Age-based pricing</div>
+                    <div>Adult (Ages 13+): $15.00</div>
+                    <div>Child (Ages 9-12): $10.00</div>
+                    <div>Child (Free) (Ages 8 & under): Free</div>
+                    <div>Senior (Ages 65+): $10.00</div>
+                  </div>
+                </v-card-text>
+              </v-form>
             </v-col>
           </div>
 
@@ -261,6 +357,7 @@ function openPayment() {
               :class="continueBtn" 
               variant="flat" 
               color="primary"
+              :disabled="!isValidForm"
               @click="openPayment()"
             >
               Continue <span class="mx-1" style="text-transform: lowercase;"> to </span> Payment
@@ -269,6 +366,18 @@ function openPayment() {
         </v-col>
       </v-row>
     </div>
+    <v-snackbar v-model="snackbar.value" rounded="pill">
+      {{ snackbar.text }}
+      <template v-slot:actions>
+        <v-btn
+          :color="snackbar.color"
+          variant="text"
+          @click="closeSnackBar()"
+        >
+          Close
+        </v-btn>
+      </template>
+    </v-snackbar>
   </v-container>
 </template>
 

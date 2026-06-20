@@ -54,7 +54,7 @@ const router = createRouter({
       component: () => import("./views/AdminDashboard.vue"),
     },
     {
-      path: "/shows/:id/events/seatmap",
+      path: "/shows/:id/events/:eventId/seatmap",
       name: "seatmap",
       component: () => import("./views/SeatMap.vue"),
     },
@@ -64,7 +64,7 @@ const router = createRouter({
       component: () => import("./views/AdminReports.vue"),
     },
     {
-      path: "/shows/:id/events/seatmap/booking",
+      path: "/shows/:id/events/:eventId/booking",
       name: "booking",
       component: () => import("./views/Booking.vue"),
     },
@@ -81,7 +81,7 @@ const router = createRouter({
       component: () => import("./views/AdminRefunds.vue"),
     },
     {
-      path: "/shows/:id/events/seatmap/booking/payment",
+      path: "/shows/:id/events/:eventId/payment",
       name: "payment",
       component: () => import("./views/Payment.vue"),
     },

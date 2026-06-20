@@ -1,9 +1,11 @@
 <script setup>
 import { onMounted, ref } from 'vue';
-import { useRouter } from 'vue-router';
+import { useRouter, useRoute } from 'vue-router';
 import OrderServices from '../services/OrderServices';
 
 const router = useRouter();
+const route = useRoute();
+const innerCard = ref('inner-card');
 const innerCardDiv = ref('inner-card-div');
 const cardStyle = ref('card-style');
 const backBtn = ref('back-btn');
@@ -15,7 +17,7 @@ const user = ref(null);
 const selectedSeats = ref([]);
 const seatIds = ref([]);
 const totalAmount = ref(0);
-const event = ref(null);
+const eventId = ref(null);
 const snackbar = ref({
   value: false,
   color: "",
@@ -23,9 +25,14 @@ const snackbar = ref({
 });
 
 onMounted(async () => {
-  // selectedPayment.value = 'Card';
-  user.value = JSON.parse(localStorage.getItem("user"));
-  event.value = JSON.parse(localStorage.getItem("event"));
+  const storedUser = localStorage.getItem("user");
+  if (storedUser && storedUser !== "null" && storedUser !== "undefined") {
+    user.value = JSON.parse(storedUser);
+  }
+  else {
+    user.value = null;
+  }
+  eventId.value = route.params.eventId;
   selectedSeats.value = JSON.parse(localStorage.getItem("selectedSeats"));
   totalAmount.value = parseFloat(JSON.parse(localStorage.getItem("totalAmount")));
   buildSeatIds();
@@ -54,18 +61,21 @@ async function completePurchase() {
   }
 
   const checkoutDetails = {
-    userId: user.value.id,
-    eventId: event.value.id,
+    userId: user.value ? user.value.id : null,
+    eventId: eventId.value,
     totalAmount: totalAmount.value,
     paymentMethod: selectedPayment.value,
     seatIds: seatIds.value
   };
 
-  await OrderServices.create(checkoutDetails)
+  await OrderServices.addOrder(checkoutDetails)
     .then((response) => {
       snackbar.value.value = true;
       snackbar.value.color = "green";
       snackbar.value.text = "Order created successfully!";
+      localStorage.removeItem("selectedSeats");
+      localStorage.removeItem("totalAmount");
+      localStorage.removeItem("selectedSeats");
     })
     .catch((error) => {
       console.log(error);
@@ -73,6 +83,10 @@ async function completePurchase() {
       snackbar.value.color = "error";
       snackbar.value.text = error.response?.data?.message || "Error completing purchase!";
     });
+}
+
+function closeSnackBar() {
+  snackbar.value.value = false;
 }
 </script>
 
@@ -87,7 +101,7 @@ async function completePurchase() {
           <div :class="innerCardDiv">
             <div class="d-flex justify-space-between ga-8">
               <v-btn 
-                :class="paymentMethod"
+                :class="['payment-method', { 'active-payment': selectedPayment === 'Card' }]"
                 :ripple="false"
                 prepend-icon="mdi-credit-card-outline"
                 variant="outlined"
@@ -96,7 +110,7 @@ async function completePurchase() {
                 Card
               </v-btn>
               <v-btn 
-                :class="paymentMethod"
+                :class="['payment-method', { 'active-payment': selectedPayment === 'GPay' }]"
                 :ripple="false"
                 variant="outlined"
                 @click="updatePaymentMethod('GPay')"
@@ -104,7 +118,7 @@ async function completePurchase() {
                 G Pay
               </v-btn>
               <v-btn 
-                :class="paymentMethod"
+                :class="['payment-method', { 'active-payment': selectedPayment === 'Apple Pay' }]"
                 :ripple="false"
                 variant="outlined"
                 @click="updatePaymentMethod('Apple Pay')"
@@ -128,7 +142,7 @@ async function completePurchase() {
                   <div class="text-body-large text-large-emphasis mb-1">Expiry Date</div>
                   <v-text-field
                     density="compact"
-                    placeholder="1234 5678 9012 3456"
+                    placeholder="MM/YY"
                     variant="outlined"
                     required
                     bgColor="#f5f5f5"
@@ -147,8 +161,36 @@ async function completePurchase() {
               </div>
             </div>
 
-            <div v-else class="mb-8">
+            <div v-else-if="selectedPayment === 'GPay'" class="mb-8">
+                <div :class="innerCard">
+                  <div class="d-flex flex-column align-center ga-4">
+                    <v-icon>
+                      mdi-google
+                    </v-icon>
+                    <h4>
+                      Pay with Google Pay
+                    </h4>
+                    <div class="text-title-small">
+                      You'll be redirected to Google Pay to complete your purchase securely. No card details needed here.
+                    </div>
+                  </div>
+                </div>
+            </div>
 
+            <div v-else-if="selectedPayment === 'Apple Pay'" class="mb-8">
+                <div :class="innerCard">
+                  <div class="d-flex flex-column align-center ga-4">
+                    <v-icon>
+                      mdi-apple
+                    </v-icon>
+                    <h4>
+                      Pay with Apple Pay
+                    </h4>
+                    <div>
+                      You'll be prompted to confirm payment using Face ID, Touch ID, or your passcode. Available on Safari and Apple devices.
+                    </div>
+                  </div>
+                </div>
             </div>
 
             <div class="d-flex ga-3 mt-4">
@@ -172,6 +214,19 @@ async function completePurchase() {
         </v-card>
       </v-col>
     </v-row>
+
+    <v-snackbar v-model="snackbar.value" rounded="pill">
+      {{ snackbar.text }}
+      <template v-slot:actions>
+        <v-btn
+          :color="snackbar.color"
+          variant="text"
+          @click="closeSnackBar()"
+        >
+          Close
+        </v-btn>
+      </template>
+    </v-snackbar>
   </v-container>
 </template>
 
@@ -181,6 +236,15 @@ async function completePurchase() {
   letter-spacing: 2%;
   font-size: larger;
   margin-bottom: 1rem;
+}
+
+.inner-card {
+  border: 2px solid #c3c3c3;
+  padding: 2rem 1.6rem;
+  margin-top: 2rem;
+  background-color: rgb(240, 244, 247);
+  text-align: center;
+  border-radius: 8px;
 }
 
 .inner-card-div {
@@ -212,7 +276,7 @@ async function completePurchase() {
   height: 2.6rem;
 }
 
-.payment-method:focus {
+.active-payment {
   border: 2px solid rgb(143, 6, 6);
   background-color: rgba(252, 225, 225, 0.219);
 }

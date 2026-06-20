@@ -4,11 +4,11 @@ export default {
   getOrders() {
     return apiClient.get("orders");
   },
-  getOrders(id) {
+  getOrder(id) {
     return apiClient.get("orders/" + id);
   },
   getOrdersForUser(userId) {
-    return apiClient.get("orders/user/" + userId)
+    return apiClient.get("orders/user/" + userId);
   },
   addOrder(order) {
     return apiClient.post("orders", order);
@@ -16,7 +16,4 @@ export default {
   updateOrder(orderId, order) {
     return apiClient.put("orders/" + orderId, order);
   },
-  deleteOrder(orderId) {
-    return apiClient.delete("orders/" + orderId);
-  }
 };
