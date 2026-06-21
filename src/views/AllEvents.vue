@@ -1,9 +1,10 @@
 <script setup>
 import { onMounted, ref, computed } from "vue";
-import { useRouter } from "vue-router";
+import { useRouter, useRoute } from "vue-router";
 import EventServices from "../services/EventServices.js";
 
 const router = useRouter();
+const route = useRoute();
 const events = ref([]);
 const search = ref("");
 const user = ref(null);
@@ -40,8 +41,9 @@ const filteredEvents = computed(() => {
   );
 });
 
-function openSeatMap() {
-  router.push({ name: "seatmap" });
+function openSeatMap(selectedEvent) {
+  window.localStorage.setItem("event", JSON.stringify(selectedEvent));
+  router.push({ name: "seatmap", params: { id: selectedEvent.showId, eventId: selectedEvent.id }});
 }
 </script>
 
@@ -105,7 +107,7 @@ function openSeatMap() {
             <v-btn
               class="bg-primary"
               :disabled="event.status !== 'Scheduled'"
-              @click="openSeatMap()"
+              @click="openSeatMap(event)"
             >
               Book Now
             </v-btn>

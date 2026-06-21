@@ -45,8 +45,8 @@ async function getEvents() {
     });
 }
 
-function openSeatMap() {
-  router.push({ name: "seatmap" });
+function openSeatMap(selectedEvent) {
+  router.push({ name: "seatmap", params: { id: route.params.id, eventId: selectedEvent.id }});
 }
 </script>
 
@@ -82,7 +82,7 @@ function openSeatMap() {
             <v-btn
               class="bg-primary"
               :disabled="event.status !== 'Scheduled'"
-              @click="openSeatMap()"
+              @click="openSeatMap(event)"
             >
               Book Now
             </v-btn>
