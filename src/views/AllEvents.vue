@@ -72,19 +72,15 @@ function openSeatMap(selectedEvent) {
         class="my-5 elevation-2"
         variant="outlined"
         :title="event.show ? event.show.title : 'Unknown Show'"
-        :subtitle="new Date(event.startTime).toLocaleDateString('en-US', { 
+        :subtitle="new Date(event.date).toLocaleDateString('en-US', { 
           weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' 
         })"
       >
         <div class="d-flex">
           <v-card-text class="pt-0">
-            Start: {{ new Date(event.startTime).toLocaleTimeString('en-US', { 
-              hour: '2-digit', minute: '2-digit' 
-            }) }}
+            Start: {{event.startTime }}
             —
-            End: {{ new Date(event.endTime).toLocaleTimeString('en-US', { 
-              hour: '2-digit', minute: '2-digit' 
-            }) }}
+            End: {{ event.endTime}}
             <span class="ml-3">| Capacity: {{ event.capacity }}</span>
             <span class="ml-3">| Price: ${{ event.show ? parseFloat(event.show.price).toFixed(2) : '0.00' }}</span>
             <v-chip

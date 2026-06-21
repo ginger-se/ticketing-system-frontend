@@ -196,8 +196,8 @@ function closeSnackBar() {
                       {{ selectedShow.title }}
                     </div>
                     <div>
-                      {{ new Date(selectedEvent.startTime).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }) }}
-                      - {{ new Date(selectedEvent.startTime).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }) }}                    
+                      {{ new Date(selectedEvent.date).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }) }}
+                      - {{ selectedEvent.startTime }}                    
                     </div>
                   </div>
     
