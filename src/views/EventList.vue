@@ -62,14 +62,14 @@ function openSeatMap(selectedEvent) {
         :key="event.id"
         class="my-5 elevation-2"
         variant="outlined"
-        :title="new Date(event.startTime).toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })"
+        :title="new Date(event.date).toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })"
         :subtitle="'Speaker: ' + (show.speakerInfo || 'TBD') + '  |  Capacity: ' + event.capacity + ' seats  |  Price: $' + parseFloat(show.price).toFixed(2)"
       >
         <div class="d-flex">
           <v-card-text class="pt-0">
-            Start: {{ new Date(event.startTime).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }) }}
+            Start: {{ event.startTime }}
             — 
-            End: {{ new Date(event.endTime).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }) }}
+            End: {{ event.endTime }}
             <v-chip
               class="ml-3"
               :color="event.status === 'Scheduled' ? 'green' : event.status === 'Cancelled' ? 'error' : 'grey'"

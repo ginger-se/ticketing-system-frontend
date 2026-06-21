@@ -33,11 +33,28 @@ async function getEvents() {
 }
 
 function getEventLength(event) {
-  let difference = new Date(event.endTime) - new Date(event.startTime);
-  let seconds = Math.floor(difference / 1000);
-  let hours = Math.floor(seconds / 3600);
-  let minutes = Math.floor((seconds % 3600) / 60);
-  return hours + 'hr ' + minutes + 'min';
+  let [startHrs, startMins] = event.startTime.toString().split(':');
+  let [endHrs, endMins] = event.endTime.toString().split(':');
+  let startHalf, endHalf;
+  [startMins, startHalf] = startMins.toString().split(' ');
+  [endMins, endHalf] = endMins.toString().split(' ');
+  console.log(endHalf);
+  startHrs = parseInt(startHrs);
+  endHrs = parseInt(endHrs);
+  if(startHalf == "PM" && startHrs != 12){startHrs += 12};
+  if(endHalf == "PM" && endHrs != 12){endHrs += 12};
+  startMins = parseInt(startMins);
+  endMins = parseInt(endMins);
+  let hours = endHrs - startHrs;
+  let min = 0;
+  if(startMins > endMins){
+    hours -= 1;
+    min = 60 - (startMins - endMins);
+  }else{
+    min = endMins - startMins;
+  }
+
+  return hours + 'hr ' + min + 'min';
 }
 </script>
 
@@ -84,8 +101,9 @@ function getEventLength(event) {
           <div class="pb-2 d-flex">
             <div class="d-flex flex-column w-50">
               <v-card-subtitle>
-                {{ new Date(event.startTime).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }) }}
+                {{ new Date(event.date).toDateString()}}
               </v-card-subtitle>
+              <v-card-subtitle>{{ event.startTime}}</v-card-subtitle>
               <v-card-subtitle>{{ getEventLength(event) }}</v-card-subtitle>
             </div>
             <v-card-text>Capacity: {{ event.capacity }}</v-card-text>
