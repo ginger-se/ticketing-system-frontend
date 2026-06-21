@@ -18,8 +18,21 @@ const newEvent = ref({
   capacity: 75,
   status: "Scheduled",
   showId: null,
+  date: null,
+  Days: null,
+  RecurrenceEnd: null,
 });
 const editEvent = ref({});
+
+const days = ref([
+  {day: "Sunday", value: 0},
+  {day: "Monday", value: 1},
+  {day: "Tuesday", value: 2},
+  {day: "Wednesday", value: 3},
+  {day: "Thursday", value: 4},
+  {day: "Friday", value: 5},
+  {day: "Saturday", value: 6},
+])
 
 onMounted(async () => {
   await getEvents();
@@ -111,6 +124,7 @@ function openAdd() {
     capacity: 75,
     status: "Scheduled",
     showId: null,
+    date: null
   };
   isAdd.value = true;
 }
@@ -154,6 +168,7 @@ function closeSnackBar() {
         <thead>
           <tr>
             <th>Show</th>
+            <th>Date</th>
             <th>Start Time</th>
             <th>End Time</th>
             <th>Capacity</th>
@@ -164,8 +179,9 @@ function closeSnackBar() {
         <tbody>
           <tr v-for="event in events" :key="event.id">
             <td>{{ getShowTitle(event.showId) }}</td>
-            <td>{{ new Date(event.startTime).toLocaleString() }}</td>
-            <td>{{ new Date(event.endTime).toLocaleString() }}</td>
+            <td>{{ event.date }}</td>
+            <td>{{ event.startTime }}</td>
+            <td>{{ event.endTime }}</td>
             <td>{{ event.capacity }}</td>
             <td>
               <v-chip
@@ -181,6 +197,7 @@ function closeSnackBar() {
                 @click="openEdit(event)"
               >Edit</v-btn>
               <v-btn
+                v-if="event.status === 'Scheduled'"
                 size="small"
                 variant="outlined"
                 color="error"
@@ -206,21 +223,43 @@ function closeSnackBar() {
             required
           ></v-select>
           <v-text-field
+            v-model="newEvent.date"
+            label="Date"
+            type="date"
+            required
+          ></v-text-field>
+          <v-text-field
             v-model="newEvent.startTime"
             label="Start Time"
-            type="datetime-local"
+            type="time"
             required
           ></v-text-field>
           <v-text-field
             v-model="newEvent.endTime"
             label="End Time"
-            type="datetime-local"
+            type="time"
             required
           ></v-text-field>
           <v-text-field
             v-model.number="newEvent.capacity"
             label="Capacity"
             type="number"
+            required
+          ></v-text-field>
+          <p>Fill both of these out if the event is recurring.</p>
+          <v-select
+            v-model="newEvent.Days"
+            multiple
+            :items="days"
+            item-title="day"
+            item-valud="value"
+            label="Days each week"
+          >
+          </v-select>
+          <v-text-field
+            v-model="newEvent.RecurrenceEnd"
+            label="Date when recurrence stops"
+            type="date"
             required
           ></v-text-field>
         </v-card-text>
@@ -246,15 +285,21 @@ function closeSnackBar() {
             required
           ></v-select>
           <v-text-field
+            v-model="editEvent.date"
+            label="Date"
+            type="date"
+            required
+          ></v-text-field>
+          <v-text-field
             v-model="editEvent.startTime"
             label="Start Time"
-            type="datetime-local"
+            type="time"
             required
           ></v-text-field>
           <v-text-field
             v-model="editEvent.endTime"
             label="End Time"
-            type="datetime-local"
+            type="time"
             required
           ></v-text-field>
           <v-text-field

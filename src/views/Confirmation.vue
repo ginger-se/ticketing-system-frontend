@@ -102,8 +102,8 @@ function openProfile() {
               </div>
               <div v-if="selectedEvent" class="d-flex ga-2 mb-2">
                 <span>
-                  {{ new Date(selectedEvent.startTime).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }) }}
-                  - {{ new Date(selectedEvent.startTime).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }) }} 
+                  {{ new Date(selectedEvent.date).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }) }}
+                  - {{ selectedEvent.startTime }} 
                 </span>
                 <span>|</span>
                 <div>
