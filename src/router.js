@@ -74,7 +74,6 @@ const router = createRouter({
       component: () => import("./views/Refund.vue"),
       props: true,
     },
-
     {
       path: "/admin/refunds",
       name: "adminRefunds",
@@ -84,6 +83,11 @@ const router = createRouter({
       path: "/shows/:id/events/:eventId/payment",
       name: "payment",
       component: () => import("./views/Payment.vue"),
+    },
+    {
+      path: "/shows/:id/events/:eventId/confirmation",
+      name: "confirmation",
+      component: () => import("./views/Confirmation.vue"),
     },
   ],
 });

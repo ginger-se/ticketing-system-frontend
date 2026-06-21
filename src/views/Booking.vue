@@ -82,6 +82,8 @@ onMounted(async () => {
   }
   else {
     user.value = null;
+    email.value = null;
+    phoneNumber.value = null;
   }
   showId.value = route.params.id;
   eventId.value = route.params.eventId;
@@ -169,6 +171,7 @@ function openPayment() {
     return;
   }
   window.localStorage.setItem("totalAmount", JSON.stringify(totalPrice.value));
+  window.localStorage.setItem("email", JSON.stringify(email.value));
   router.push({ name: "payment", params: { id: route.params.id, eventId: route.params.eventId }});
 }
 
@@ -303,7 +306,6 @@ function closeSnackBar() {
                 </div>
               </v-card>
             </v-col>
-  
 
             <v-col style="flex-basis: 50%;" class="px-0"> 
               <v-form v-model="isValidForm">

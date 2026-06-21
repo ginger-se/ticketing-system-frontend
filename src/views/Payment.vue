@@ -18,6 +18,8 @@ const selectedSeats = ref([]);
 const seatIds = ref([]);
 const totalAmount = ref(0);
 const eventId = ref(null);
+const email = ref(null);
+
 const snackbar = ref({
   value: false,
   color: "",
@@ -35,6 +37,7 @@ onMounted(async () => {
   eventId.value = route.params.eventId;
   selectedSeats.value = JSON.parse(localStorage.getItem("selectedSeats"));
   totalAmount.value = parseFloat(JSON.parse(localStorage.getItem("totalAmount")));
+  email.value = JSON.parse(localStorage.getItem("email"));
   buildSeatIds();
 });
 
@@ -52,6 +55,10 @@ function openBooking() {
   router.push({ name: "booking" });
 }
 
+function openConfirmation() {
+  router.push({ name: "confirmation", params: { id: route.params.id, eventId: route.params.eventId }});
+}
+
 async function completePurchase() {
   if (!selectedPayment.value) {
     snackbar.value.value = true;
@@ -65,7 +72,8 @@ async function completePurchase() {
     eventId: eventId.value,
     totalAmount: totalAmount.value,
     paymentMethod: selectedPayment.value,
-    seatIds: seatIds.value
+    seatIds: seatIds.value,
+    email: email.value
   };
 
   await OrderServices.addOrder(checkoutDetails)
@@ -73,9 +81,8 @@ async function completePurchase() {
       snackbar.value.value = true;
       snackbar.value.color = "green";
       snackbar.value.text = "Order created successfully!";
-      localStorage.removeItem("selectedSeats");
+      localStorage.removeItem("email");
       localStorage.removeItem("totalAmount");
-      localStorage.removeItem("selectedSeats");
     })
     .catch((error) => {
       console.log(error);
@@ -83,6 +90,8 @@ async function completePurchase() {
       snackbar.value.color = "error";
       snackbar.value.text = error.response?.data?.message || "Error completing purchase!";
     });
+
+    openConfirmation();
 }
 
 function closeSnackBar() {
