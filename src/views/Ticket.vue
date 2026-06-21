@@ -2,6 +2,8 @@
 import { onMounted, ref, computed } from "vue";
 import { useRouter } from "vue-router";
 import TicketServices from "../services/TicketServices.js";
+import jsPDF from "jspdf";
+import QRCode from "qrcode";
 
 const router = useRouter();
 const tickets = ref([]);
@@ -41,7 +43,43 @@ const pastTickets = computed(() =>
 );
 
 function goToRefund(ticket) {
-  router.push({ name: "requestRefund", params: { paymentId: ticket.paymentId } });
+  router.push({ name: "requestRefund", params: { paymentId: ticket.payment.id } });
+}
+
+async function downloadTicket(ticket) {
+  try {
+    const qrDataUrl = await QRCode.toDataURL(ticket.QRCode || `ticket-${ticket.id}`);
+
+    const doc = new jsPDF({ unit: "pt", format: [400, 550] });
+
+    doc.setFontSize(20);
+    doc.text("Planetarium", 40, 50);
+
+    doc.setFontSize(16);
+    doc.text(ticket.event.show.title, 40, 90);
+
+    doc.setFontSize(12);
+    const dateText = new Date(ticket.event.startTime).toLocaleDateString('en-US', {
+      weekday: 'long', year: 'numeric', month: 'long', day: 'numeric',
+    });
+    const timeText = new Date(ticket.event.startTime).toLocaleTimeString('en-US', {
+      hour: '2-digit', minute: '2-digit',
+    });
+    doc.text(`${dateText} - ${timeText}`, 40, 115);
+    doc.text(`Seat: ${ticket.seat.rowNumber}${ticket.seat.seatNumber}`, 40, 135);
+
+    doc.addImage(qrDataUrl, "PNG", 100, 170, 200, 200);
+
+    doc.setFontSize(10);
+    doc.text(`Ticket ID: ${ticket.id}`, 40, 400);
+
+    doc.save(`${ticket.event.show.title.replace(/\s+/g, "_")}_ticket_${ticket.id}.pdf`);
+  } catch (error) {
+    console.log(error);
+    snackbar.value.value = true;
+    snackbar.value.color = "error";
+    snackbar.value.text = "Error generating ticket PDF";
+  }
 }
 </script>
 
@@ -80,10 +118,10 @@ function goToRefund(ticket) {
           >
             <div class="d-flex">
               <v-card-text class="pt-0">
-                Ticket Type: {{ ticket.ticketType }}
+                Seat: {{ ticket.seat.rowNumber }}{{ ticket.seat.seatNumber }}
               </v-card-text>
               <v-card-actions class="justify-end">
-                <v-btn variant="outlined" class="mr-2">
+                <v-btn variant="outlined" class="mr-2" @click="downloadTicket(ticket)">
                   Download
                 </v-btn>
                 <v-btn variant="outlined" color="error" @click="goToRefund(ticket)">
@@ -114,11 +152,14 @@ function goToRefund(ticket) {
           >
             <div class="d-flex">
               <v-card-text class="pt-0">
-                Ticket Type: {{ ticket.ticketType }}
+                Seat: {{ ticket.seat.rowNumber }}{{ ticket.seat.seatNumber }}
               </v-card-text>
               <v-card-actions class="justify-end">
-                <v-btn variant="outlined">
+                <v-btn variant="outlined" class="mr-2" @click="downloadTicket(ticket)">
                   Download
+                </v-btn>
+                <v-btn variant="outlined" color="error" @click="goToRefund(ticket)">
+                  Request Refund
                 </v-btn>
               </v-card-actions>
             </div>
