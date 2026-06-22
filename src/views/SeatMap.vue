@@ -132,7 +132,10 @@ function closeSnackBar() {
   snackbar.value.value = false;
 }
 
-function openBooking() {
+async function openBooking() {
+  const selectedSeatIds = selectedSeats.value.map(seat => seat.id);
+  const response = await EventServices.addReservation(route.params.eventId, { seats: selectedSeatIds });
+  window.localStorage.setItem("reservationId", JSON.stringify(response.data.reservationId));
   window.localStorage.setItem("selectedSeats", JSON.stringify(selectedSeats.value));
   router.push({ name: "booking", params: { id: route.params.id, eventId: route.params.eventId }});
 }
