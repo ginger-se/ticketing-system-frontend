@@ -17,6 +17,12 @@ const eventId = ref(null);
 const selectedShow = ref(null);
 const selectedEvent = ref(null);
 
+const snackbar = ref({
+  value: false,
+  color: "",
+  text: "",
+});
+
 const numberOfSelectedSeats = computed(() => {
   return selectedSeats.value.length;
 });
@@ -58,7 +64,7 @@ async function getShowDetails() {
 async function getEventDetails() {
   await EventServices.getEvent(eventId.value)
     .then((response) => {
-      selectedEvent.value = response.data.find(e => e.id == eventId.value);
+     selectedEvent.value = response.data;
       console.log(selectedEvent.value);
     })
     .catch((error) => {
@@ -109,7 +115,7 @@ function openProfile() {
                 <div>
                   <div v-if="numberOfSelectedSeats > 1" class="d-flex ga-1">
                     <div>Seats</div>
-                    <span v-for="(seat, index) in selectedSeats" :key="seat.id">
+                    <span v-for="(seat) in selectedSeats" :key="seat.id">
                       {{ seat.rowNumber }}{{  seat.seatNumber }}
                     </span>
                   </div>

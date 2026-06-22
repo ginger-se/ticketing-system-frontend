@@ -107,10 +107,11 @@ async function getShowDetails() {
     });
 }
 
+// getEventDetails
 async function getEventDetails() {
   await EventServices.getEvent(eventId.value)
     .then((response) => {
-      selectedEvent.value = response.data.find(e => e.id == eventId.value);
+      selectedEvent.value = response.data;
       console.log(selectedEvent.value);
     })
     .catch((error) => {
@@ -119,6 +120,14 @@ async function getEventDetails() {
       snackbar.value.color = "error";
       snackbar.value.text = error.response?.data?.message || "Error retrieving event details";
     });
+}
+
+// time helper
+function formatDate(date) {
+  if (!date || date === '0000-00-00' || date.startsWith('0000')) return 'Date TBD';
+  const parsed = new Date(date);
+  if (isNaN(parsed.getTime())) return 'Date TBD';
+  return parsed.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
 }
 
 const subtotalPrice = computed(() => {
@@ -196,8 +205,7 @@ function closeSnackBar() {
                       {{ selectedShow.title }}
                     </div>
                     <div>
-                      {{ new Date(selectedEvent.date).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }) }}
-                      - {{ selectedEvent.startTime }}                    
+                      {{ formatDate(selectedEvent.date) }} - {{ selectedEvent.startTime }}                   
                     </div>
                   </div>
     

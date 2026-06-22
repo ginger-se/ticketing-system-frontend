@@ -1,8 +1,10 @@
 <script setup>
 import { onMounted, ref } from "vue";
+import { useRouter } from "vue-router"; 
 import EventServices from "../services/EventServices.js";
 import ShowServices from "../services/ShowServices.js";
 
+const router = useRouter();
 const events = ref([]);
 const shows = ref([]);
 const isAdd = ref(false);
@@ -48,7 +50,7 @@ async function getEvents() {
       console.log(error);
       snackbar.value.value = true;
       snackbar.value.color = "error";
-      snackbar.value.text = error.response.data.message;
+      snackbar.value.text = error.response?.data?.message || "Error loading events";
     });
 }
 
@@ -74,14 +76,31 @@ async function addEvent() {
       console.log(error);
       snackbar.value.value = true;
       snackbar.value.color = "error";
-      snackbar.value.text = error.response.data.message;
+      snackbar.value.text = error.response?.data?.message || "Error adding event";
     });
   await getEvents();
 }
 
 async function updateEvent() {
+  if (!editEvent.value.date) {
+    snackbar.value.value = true;
+    snackbar.value.color = "error";
+    snackbar.value.text = "Please select a valid date before updating.";
+    return;
+  }
+
   isEdit.value = false;
-  await EventServices.updateEvent(editEvent.value.id, editEvent.value)
+
+  const payload = {
+    date: editEvent.value.date,
+    startTime: editEvent.value.startTime,
+    endTime: editEvent.value.endTime,
+    capacity: editEvent.value.capacity,
+    status: editEvent.value.status,
+    showId: editEvent.value.showId,
+  };
+
+  await EventServices.updateEvent(editEvent.value.id, payload)
     .then(() => {
       snackbar.value.value = true;
       snackbar.value.color = "green";
@@ -91,7 +110,7 @@ async function updateEvent() {
       console.log(error);
       snackbar.value.value = true;
       snackbar.value.color = "error";
-      snackbar.value.text = error.response.data.message;
+      snackbar.value.text = error.response?.data?.message || "Error updating event";
     });
   await getEvents();
 }
@@ -107,7 +126,7 @@ async function cancelEvent(event) {
       console.log(error);
       snackbar.value.value = true;
       snackbar.value.color = "error";
-      snackbar.value.text = error.response.data.message;
+      snackbar.value.text = error.response?.data?.message || "Error cancelling event";
     });
   await getEvents();
 }
@@ -129,8 +148,23 @@ function openAdd() {
   isAdd.value = true;
 }
 
+function convertTo24Hour(timeStr) {
+  if (!timeStr) return "";
+  if (!timeStr.includes('AM') && !timeStr.includes('PM')) return timeStr;
+  const [time, modifier] = timeStr.split(' ');
+  let [hours, minutes] = time.split(':');
+  if (hours === '12') hours = '00';
+  if (modifier === 'PM') hours = parseInt(hours, 10) + 12;
+  return `${String(hours).padStart(2, '0')}:${minutes}`;
+}
+
 function openEdit(event) {
-  editEvent.value = { ...event };
+  editEvent.value = { 
+    ...event,
+    date: (!event.date || event.date === '0000-00-00' || event.date.startsWith('0000')) ? '' : event.date,
+    startTime: convertTo24Hour(event.startTime),
+    endTime: convertTo24Hour(event.endTime),
+  };
   isEdit.value = true;
 }
 
@@ -149,9 +183,9 @@ function closeSnackBar() {
 
 <template>
   <v-container>
-   <v-btn  variant="text" prepend-icon="mdi-arrow-left"  :to="{ name: 'adminDashboard' }" class="mb-4">
-    Back to Dashboard
-  </v-btn>
+    <v-btn variant="text" prepend-icon="mdi-arrow-left" @click="router.push({ name: 'adminDashboard' })" class="mb-4">
+      Back to Dashboard
+    </v-btn>
     <v-row align="center" class="mb-4">
       <v-col cols="10">
         <v-card-title class="pl-0 text-h4 font-weight-bold">
@@ -252,10 +286,9 @@ function closeSnackBar() {
             multiple
             :items="days"
             item-title="day"
-            item-valud="value"
+            item-value="value"
             label="Days each week"
-          >
-          </v-select>
+          ></v-select>
           <v-text-field
             v-model="newEvent.RecurrenceEnd"
             label="Date when recurrence stops"
