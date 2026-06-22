@@ -1,8 +1,10 @@
 <script setup>
 import { onMounted, ref } from "vue";
+import { useRouter } from "vue-router"; 
 import EventServices from "../services/EventServices.js";
 import ShowServices from "../services/ShowServices.js";
 
+const router = useRouter();
 const events = ref([]);
 const shows = ref([]);
 const isAdd = ref(false);
@@ -18,8 +20,21 @@ const newEvent = ref({
   capacity: 75,
   status: "Scheduled",
   showId: null,
+  date: null,
+  Days: null,
+  RecurrenceEnd: null,
 });
 const editEvent = ref({});
+
+const days = ref([
+  {day: "Sunday", value: 0},
+  {day: "Monday", value: 1},
+  {day: "Tuesday", value: 2},
+  {day: "Wednesday", value: 3},
+  {day: "Thursday", value: 4},
+  {day: "Friday", value: 5},
+  {day: "Saturday", value: 6},
+])
 
 onMounted(async () => {
   await getEvents();
@@ -35,7 +50,7 @@ async function getEvents() {
       console.log(error);
       snackbar.value.value = true;
       snackbar.value.color = "error";
-      snackbar.value.text = error.response.data.message;
+      snackbar.value.text = error.response?.data?.message || "Error loading events";
     });
 }
 
@@ -61,14 +76,31 @@ async function addEvent() {
       console.log(error);
       snackbar.value.value = true;
       snackbar.value.color = "error";
-      snackbar.value.text = error.response.data.message;
+      snackbar.value.text = error.response?.data?.message || "Error adding event";
     });
   await getEvents();
 }
 
 async function updateEvent() {
+  if (!editEvent.value.date) {
+    snackbar.value.value = true;
+    snackbar.value.color = "error";
+    snackbar.value.text = "Please select a valid date before updating.";
+    return;
+  }
+
   isEdit.value = false;
-  await EventServices.updateEvent(editEvent.value.id, editEvent.value)
+
+  const payload = {
+    date: editEvent.value.date,
+    startTime: editEvent.value.startTime,
+    endTime: editEvent.value.endTime,
+    capacity: editEvent.value.capacity,
+    status: editEvent.value.status,
+    showId: editEvent.value.showId,
+  };
+
+  await EventServices.updateEvent(editEvent.value.id, payload)
     .then(() => {
       snackbar.value.value = true;
       snackbar.value.color = "green";
@@ -78,7 +110,7 @@ async function updateEvent() {
       console.log(error);
       snackbar.value.value = true;
       snackbar.value.color = "error";
-      snackbar.value.text = error.response.data.message;
+      snackbar.value.text = error.response?.data?.message || "Error updating event";
     });
   await getEvents();
 }
@@ -94,7 +126,7 @@ async function cancelEvent(event) {
       console.log(error);
       snackbar.value.value = true;
       snackbar.value.color = "error";
-      snackbar.value.text = error.response.data.message;
+      snackbar.value.text = error.response?.data?.message || "Error cancelling event";
     });
   await getEvents();
 }
@@ -111,12 +143,28 @@ function openAdd() {
     capacity: 75,
     status: "Scheduled",
     showId: null,
+    date: null
   };
   isAdd.value = true;
 }
 
+function convertTo24Hour(timeStr) {
+  if (!timeStr) return "";
+  if (!timeStr.includes('AM') && !timeStr.includes('PM')) return timeStr;
+  const [time, modifier] = timeStr.split(' ');
+  let [hours, minutes] = time.split(':');
+  if (hours === '12') hours = '00';
+  if (modifier === 'PM') hours = parseInt(hours, 10) + 12;
+  return `${String(hours).padStart(2, '0')}:${minutes}`;
+}
+
 function openEdit(event) {
-  editEvent.value = { ...event };
+  editEvent.value = { 
+    ...event,
+    date: (!event.date || event.date === '0000-00-00' || event.date.startsWith('0000')) ? '' : event.date,
+    startTime: convertTo24Hour(event.startTime),
+    endTime: convertTo24Hour(event.endTime),
+  };
   isEdit.value = true;
 }
 
@@ -135,9 +183,9 @@ function closeSnackBar() {
 
 <template>
   <v-container>
-   <v-btn  variant="text" prepend-icon="mdi-arrow-left"  :to="{ name: 'adminDashboard' }" class="mb-4">
-    Back to Dashboard
-  </v-btn>
+    <v-btn variant="text" prepend-icon="mdi-arrow-left" @click="router.push({ name: 'adminDashboard' })" class="mb-4">
+      Back to Dashboard
+    </v-btn>
     <v-row align="center" class="mb-4">
       <v-col cols="10">
         <v-card-title class="pl-0 text-h4 font-weight-bold">
@@ -154,6 +202,7 @@ function closeSnackBar() {
         <thead>
           <tr>
             <th>Show</th>
+            <th>Date</th>
             <th>Start Time</th>
             <th>End Time</th>
             <th>Capacity</th>
@@ -164,8 +213,9 @@ function closeSnackBar() {
         <tbody>
           <tr v-for="event in events" :key="event.id">
             <td>{{ getShowTitle(event.showId) }}</td>
-            <td>{{ new Date(event.startTime).toLocaleString() }}</td>
-            <td>{{ new Date(event.endTime).toLocaleString() }}</td>
+            <td>{{ event.date }}</td>
+            <td>{{ event.startTime }}</td>
+            <td>{{ event.endTime }}</td>
             <td>{{ event.capacity }}</td>
             <td>
               <v-chip
@@ -181,6 +231,7 @@ function closeSnackBar() {
                 @click="openEdit(event)"
               >Edit</v-btn>
               <v-btn
+                v-if="event.status === 'Scheduled'"
                 size="small"
                 variant="outlined"
                 color="error"
@@ -206,21 +257,42 @@ function closeSnackBar() {
             required
           ></v-select>
           <v-text-field
+            v-model="newEvent.date"
+            label="Date"
+            type="date"
+            required
+          ></v-text-field>
+          <v-text-field
             v-model="newEvent.startTime"
             label="Start Time"
-            type="datetime-local"
+            type="time"
             required
           ></v-text-field>
           <v-text-field
             v-model="newEvent.endTime"
             label="End Time"
-            type="datetime-local"
+            type="time"
             required
           ></v-text-field>
           <v-text-field
             v-model.number="newEvent.capacity"
             label="Capacity"
             type="number"
+            required
+          ></v-text-field>
+          <p>Fill both of these out if the event is recurring.</p>
+          <v-select
+            v-model="newEvent.Days"
+            multiple
+            :items="days"
+            item-title="day"
+            item-value="value"
+            label="Days each week"
+          ></v-select>
+          <v-text-field
+            v-model="newEvent.RecurrenceEnd"
+            label="Date when recurrence stops"
+            type="date"
             required
           ></v-text-field>
         </v-card-text>
@@ -246,15 +318,21 @@ function closeSnackBar() {
             required
           ></v-select>
           <v-text-field
+            v-model="editEvent.date"
+            label="Date"
+            type="date"
+            required
+          ></v-text-field>
+          <v-text-field
             v-model="editEvent.startTime"
             label="Start Time"
-            type="datetime-local"
+            type="time"
             required
           ></v-text-field>
           <v-text-field
             v-model="editEvent.endTime"
             label="End Time"
-            type="datetime-local"
+            type="time"
             required
           ></v-text-field>
           <v-text-field
