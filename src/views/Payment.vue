@@ -83,6 +83,7 @@ async function completePurchase() {
       snackbar.value.text = "Order created successfully!";
       localStorage.removeItem("email");
       localStorage.removeItem("totalAmount");
+      window.localStorage.setItem("orderId", response.data.id);
     })
     .catch((error) => {
       console.log(error);
