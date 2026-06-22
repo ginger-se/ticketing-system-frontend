@@ -3,6 +3,8 @@ import { onMounted, ref, computed } from "vue";
 import { useRouter, useRoute } from "vue-router";
 import ShowServices from "../services/ShowServices";
 import EventServices from "../services/EventServices";
+import OrderServices from "../services/OrderServices";
+import QRCode from 'qrcode';
 
 const router = useRouter();
 const route = useRoute();
@@ -16,6 +18,8 @@ const showId = ref(null);
 const eventId = ref(null);
 const selectedShow = ref(null);
 const selectedEvent = ref(null);
+const orders = ref(null);
+const qrCodes = ref([]);
 
 const snackbar = ref({
   value: false,
@@ -40,18 +44,17 @@ onMounted(async () => {
   await getShowDetails();
   await getEventDetails();
   getSelectedSeats();
+  generateQrCodes();
 });
 
 function getSelectedSeats() {
   selectedSeats.value = JSON.parse(localStorage.getItem("selectedSeats"));
-  console.log(selectedSeats.value)
 }
 
 async function getShowDetails() {
   await ShowServices.getShow(showId.value)
     .then((response) => {
       selectedShow.value = response.data;
-      console.log(selectedShow.value);
     })
     .catch((error) => {
       console.log(error);
@@ -79,6 +82,26 @@ function openProfile() {
   router.push({ name: "profile" });
   localStorage.removeItem("selectedSeats");
 }
+
+async function generateQrCodes(){
+  await OrderServices.getOrder(localStorage.getItem("orderId"))
+  .then((response) =>{
+      orders.value = response.data;
+      orders.value.orderTickets.forEach(async (ticket, index) => {
+        try {
+          let img = await QRCode.toDataURL(ticket.QRCode, {
+            width: 200,
+            margin: 2
+          });
+          qrCodes.value.push(img);
+        } catch (err) {
+        }
+      });
+    })
+    .catch((error) =>{
+    });
+  
+}
 </script>
 
 <template>
@@ -98,10 +121,15 @@ function openProfile() {
         <v-card :class="cardStyle" class="mt-8" variant="outlined">
           <div :class="innerCardDiv">
             <div class="d-flex flex-column align-center">
-              <div id="QRCode">
-                <v-icon size="200">
-                  mdi-qrcode
-                </v-icon>
+              <div id="QRCode" class="w-100">
+                <v-carousel  v-if="qrCodes.length > 0">
+                  <v-carousel-item  v-for="(code,index) in qrCodes"
+                    :src="code"
+                    
+                  > 
+                  <h5 class="text-center">Ticket: {{ index + 1 }}</h5>
+                  </v-carousel-item>
+                </v-carousel>
               </div>
               <div v-if="selectedShow" class="mt-2">
                 <h4>{{ selectedShow.title }}</h4>
@@ -132,13 +160,6 @@ function openProfile() {
         </v-card>
 
         <div v-if="user !== null" class="d-flex ga-4 mt-6 justify-center">
-          <v-btn 
-            :class="downloadBtn"
-            variant="flat"
-            prepend-icon="mdi-tray-arrow-down"
-          >
-            Download Ticket
-          </v-btn>
           <v-btn 
             :class="viewTicketsBtn" 
             variant="flat" 
