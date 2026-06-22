@@ -21,6 +21,12 @@ const selectedEvent = ref(null);
 const orders = ref(null);
 const qrCodes = ref([]);
 
+const snackbar = ref({
+  value: false,
+  color: "",
+  text: "",
+});
+
 const numberOfSelectedSeats = computed(() => {
   return selectedSeats.value.length;
 });
@@ -61,7 +67,8 @@ async function getShowDetails() {
 async function getEventDetails() {
   await EventServices.getEvent(eventId.value)
     .then((response) => {
-      selectedEvent.value = response.data.find(e => e.id == eventId.value);
+     selectedEvent.value = response.data;
+      console.log(selectedEvent.value);
     })
     .catch((error) => {
       console.log(error);
@@ -136,7 +143,7 @@ async function generateQrCodes(){
                 <div>
                   <div v-if="numberOfSelectedSeats > 1" class="d-flex ga-1">
                     <div>Seats</div>
-                    <span v-for="(seat, index) in selectedSeats" :key="seat.id">
+                    <span v-for="(seat) in selectedSeats" :key="seat.id">
                       {{ seat.rowNumber }}{{  seat.seatNumber }}
                     </span>
                   </div>

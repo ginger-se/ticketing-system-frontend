@@ -2,6 +2,8 @@
 import { onMounted, ref, computed } from "vue";
 import { useRouter } from "vue-router";
 import TicketServices from "../services/TicketServices.js";
+import jsPDF from "jspdf";
+import QRCode from "qrcode";
 
 const router = useRouter();
 const tickets = ref([]);
@@ -22,26 +24,73 @@ async function getTickets() {
   await TicketServices.getTicketsForUser(user.value.id)
     .then((response) => {
       tickets.value = response.data;
-      console.log(tickets.value);
+      console.log("ALL TICKETS:", JSON.stringify(response.data, null, 2));
+      response.data.forEach((t, i) => {
+        console.log(`ticket[${i}] event:`, t.event, "seat:", t.seat, "payment:", t.payment);
+      });
     })
     .catch((error) => {
-      console.log(error);
+      console.log("ERROR:", error.response?.status, error.response?.data);
       snackbar.value.value = true;
       snackbar.value.color = "error";
       snackbar.value.text = error.response?.data?.message || "Error loading tickets";
     });
 }
 
+function getEventDateTime(event) {
+  if (!event || !event.date || !event.startTime) return new Date(0);
+  if (event.date === '0000-00-00' || event.date.startsWith('0000')) return new Date(0);
+  const parsed = new Date(event.date);
+  if (isNaN(parsed.getTime())) return new Date(0);
+  const datePart = parsed.toISOString().split("T")[0];
+  return new Date(`${datePart} ${event.startTime}`);
+}
+
 const upcomingTickets = computed(() =>
-  tickets.value.filter((t) => new Date(t.event.startTime) >= new Date())
+  tickets.value.filter((t) => t.event && getEventDateTime(t.event) >= new Date())
 );
 
 const pastTickets = computed(() =>
-  tickets.value.filter((t) => new Date(t.event.startTime) < new Date())
+  tickets.value.filter((t) => t.event && getEventDateTime(t.event) < new Date())
 );
 
 function goToRefund(ticket) {
-  router.push({ name: "requestRefund", params: { paymentId: ticket.paymentId } });
+  router.push({ name: "requestRefund", params: { paymentId: ticket.payment.id } });
+}
+
+async function downloadTicket(ticket) {
+  try {
+    const qrDataUrl = await QRCode.toDataURL(ticket.QRCode || `ticket-${ticket.id}`);
+
+    const doc = new jsPDF({ unit: "pt", format: [400, 550] });
+
+    doc.setFontSize(20);
+    doc.text("Planetarium", 40, 50);
+
+    doc.setFontSize(16);
+    doc.text(ticket.event?.show?.title || "Unknown Show", 40, 90);
+
+    doc.setFontSize(12);
+    const eventDateTime = getEventDateTime(ticket.event);
+    const dateText = eventDateTime.toLocaleDateString('en-US', {
+      weekday: 'long', year: 'numeric', month: 'long', day: 'numeric',
+    });
+    doc.text(`${dateText} - ${ticket.event?.startTime || ""}`, 40, 115);
+    doc.text(`Seat: ${ticket.seat?.rowNumber || ""}${ticket.seat?.seatNumber || ""}`, 40, 135);
+
+    doc.addImage(qrDataUrl, "PNG", 100, 170, 200, 200);
+
+    doc.setFontSize(10);
+    doc.text(`Ticket ID: ${ticket.id}`, 40, 400);
+
+    const filename = (ticket.event?.show?.title || "ticket").replace(/\s+/g, "_");
+    doc.save(`${filename}_ticket_${ticket.id}.pdf`);
+  } catch (error) {
+    console.log(error);
+    snackbar.value.value = true;
+    snackbar.value.color = "error";
+    snackbar.value.text = "Error generating ticket PDF";
+  }
 }
 </script>
 
@@ -50,10 +99,10 @@ function goToRefund(ticket) {
     <div id="body">
       <v-row align="center" class="mb-2">
         <v-col>
-          <v-btn variant="text" :to="{ name: 'shows' }" class="mr-2">
+          <v-btn variant="text" @click="router.push({ name: 'shows' })" class="mr-2">
             Shows
           </v-btn>
-          <v-btn variant="text" :to="{ name: 'events' }">
+          <v-btn variant="text" @click="router.push({ name: 'events' })">
             Events
           </v-btn>
         </v-col>
@@ -75,15 +124,15 @@ function goToRefund(ticket) {
             :key="ticket.id"
             class="my-5 elevation-2"
             variant="outlined"
-            :title="ticket.event.show.title"
-            :subtitle="new Date(ticket.event.startTime).toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }) + ' - ' + new Date(ticket.event.startTime).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })"
+            :title="ticket.event?.show?.title || 'Unknown Show'"
+            :subtitle="ticket.event?.date ? getEventDateTime(ticket.event).toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }) + ' - ' + (ticket.event?.startTime || '') : ''"
           >
             <div class="d-flex">
               <v-card-text class="pt-0">
-                Ticket Type: {{ ticket.ticketType }}
+                Seat: {{ ticket.seat?.rowNumber }}{{ ticket.seat?.seatNumber }}
               </v-card-text>
               <v-card-actions class="justify-end">
-                <v-btn variant="outlined" class="mr-2">
+                <v-btn variant="outlined" class="mr-2" @click="downloadTicket(ticket)">
                   Download
                 </v-btn>
                 <v-btn variant="outlined" color="error" @click="goToRefund(ticket)">
@@ -93,10 +142,10 @@ function goToRefund(ticket) {
             </div>
           </v-card>
 
-          <v-card v-if="upcomingTickets.length === 0" class="my-5 elevation-2" variant="outlined">
+          <v-card v-if="!upcomingTickets || upcomingTickets.length === 0" class="my-5 elevation-2" variant="outlined">
             <v-card-text>
               No upcoming tickets.
-              <v-btn variant="text" color="primary" :to="{ name: 'shows' }" class="ml-2">
+              <v-btn variant="text" color="primary" @click="router.push({ name: 'shows' })" class="ml-2">
                 Browse Shows
               </v-btn>
             </v-card-text>
@@ -109,22 +158,25 @@ function goToRefund(ticket) {
             :key="ticket.id"
             class="my-5 elevation-2"
             variant="outlined"
-            :title="ticket.event.show.title"
-            :subtitle="new Date(ticket.event.startTime).toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })"
+            :title="ticket.event?.show?.title || 'Unknown Show'"
+            :subtitle="ticket.event?.date ? getEventDateTime(ticket.event).toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }) : ''"
           >
             <div class="d-flex">
               <v-card-text class="pt-0">
-                Ticket Type: {{ ticket.ticketType }}
+                Seat: {{ ticket.seat?.rowNumber }}{{ ticket.seat?.seatNumber }}
               </v-card-text>
               <v-card-actions class="justify-end">
-                <v-btn variant="outlined">
+                <v-btn variant="outlined" class="mr-2" @click="downloadTicket(ticket)">
                   Download
+                </v-btn>
+                <v-btn variant="outlined" color="error" @click="goToRefund(ticket)">
+                  Request Refund
                 </v-btn>
               </v-card-actions>
             </div>
           </v-card>
 
-          <v-card v-if="pastTickets.length === 0" class="my-5 elevation-2" variant="outlined">
+          <v-card v-if="!pastTickets || pastTickets.length === 0" class="my-5 elevation-2" variant="outlined">
             <v-card-text>No past tickets.</v-card-text>
           </v-card>
         </v-window-item>

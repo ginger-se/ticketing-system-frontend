@@ -40,6 +40,9 @@ const filteredShows = computed(() => {
 
 <template>
   <v-container>
+    <v-btn variant="text" prepend-icon="mdi-arrow-left" :to="{ name: 'home' }" class="mb-4">
+  Back to Home
+</v-btn>
     <div id="body">
       <v-card-title class="pl-0 text-h4 font-weight-bold mb-4">
         Offered Shows
