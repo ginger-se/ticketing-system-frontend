@@ -2,8 +2,9 @@
 import { ref, onMounted } from "vue";
 import DashboardServices from "../services/dashboardServices.js";
 
-const report = ref({ totalRevenue: 0, ticketsSold: 0, avgOccupancy: 0, refundsIssued: 0, events: [] });
+const report = ref({ totalRevenue: 0, ticketsSold: 0, avgOccupancy: 0, refundsIssued: 0, events: [], payments: [] });
 const snackbar = ref({ value: false, color: "", text: "" });
+const activeTab = ref(0);
 
 onMounted(async () => {
   await getReport();
@@ -67,10 +68,17 @@ async function getReport() {
       </v-col>
     </v-row>
 
-    <v-row class="mt-6">
-      <v-col>
-        <v-card class="rounded-lg elevation-3 pa-4">
-          <h3 class="mb-4">Sales by Show</h3>
+  <v-row class="mt-6">
+  <v-col>
+    <v-card class="rounded-lg elevation-3">
+      <v-tabs v-model="activeTab" color="accent">
+        <v-tab>Sales by Show</v-tab>
+        <v-tab>Ticket Types</v-tab>
+        <v-tab>Payments</v-tab>
+      </v-tabs>
+      <v-divider />
+      <v-window v-model="activeTab" class="pa-4">
+        <v-window-item>
           <v-table>
             <thead>
               <tr>
@@ -89,9 +97,43 @@ async function getReport() {
               </tr>
             </tbody>
           </v-table>
-        </v-card>
-      </v-col>
-    </v-row>
+        </v-window-item>
+        <v-window-item>
+          <p class="text-grey pa-2">Ticket Types breakdown coming soon.</p>
+        </v-window-item>
+        <v-window-item>
+          <h3 class="mb-4">Recent Transactions</h3>
+          <v-table>
+            <thead>
+              <tr>
+                <th>Reference</th>
+                <th>Customer</th>
+                <th>Date</th>
+                <th>Method</th>
+                <th>Amount</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="payment in report.payments" :key="payment.id">
+                <td>#{{ payment.orderId }}</td>
+                <td>{{ payment.user ? payment.user.firstName + ' ' + payment.user.lastName : 'Guest' }}</td>
+                <td>{{ new Date(payment.paymentDate).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }) }}</td>
+                <td>{{ payment.paymentMethod }}</td>
+                <td class="font-weight-bold">${{ parseFloat(payment.amount).toFixed(2) }}</td>
+                <td>
+                  <v-chip :color="(payment.paymentStatus === 'Refunded' || payment.refunds?.length > 0) ? 'error' : 'success'" size="small">
+                    {{ (payment.paymentStatus === 'Refunded' || payment.refunds?.length > 0) ? 'Refunded' : 'Completed' }}
+                  </v-chip> 
+                </td>
+              </tr>
+            </tbody>
+          </v-table>
+        </v-window-item>
+      </v-window>
+    </v-card>
+  </v-col>
+</v-row>
 
     <v-snackbar v-model="snackbar.value" rounded="pill">
       {{ snackbar.text }}
