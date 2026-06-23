@@ -73,7 +73,6 @@ async function getReport() {
     <v-card class="rounded-lg elevation-3">
       <v-tabs v-model="activeTab" color="accent">
         <v-tab>Sales by Show</v-tab>
-        <v-tab>Ticket Types</v-tab>
         <v-tab>Payments</v-tab>
       </v-tabs>
       <v-divider />
@@ -97,9 +96,6 @@ async function getReport() {
               </tr>
             </tbody>
           </v-table>
-        </v-window-item>
-        <v-window-item>
-          <p class="text-grey pa-2">Ticket Types breakdown coming soon.</p>
         </v-window-item>
         <v-window-item>
           <h3 class="mb-4">Recent Transactions</h3>
