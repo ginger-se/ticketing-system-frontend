@@ -7,6 +7,12 @@ export default {
   addUser(user) {
     return apiClient.post("users", user);
   },
+  updateUser(userId, user){
+    return apiClient.put("users/" + userId,  user);
+  },
+  deleteUser(user){
+    return apiClient.delete("users/"+user);
+  },
   loginUser(user) {
     console.log(user);
     return apiClient.post("login", user.value, {
