@@ -1,5 +1,5 @@
 <script setup>
-import { onMounted, ref } from "vue";
+import { onMounted, ref, computed } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import EventServices from "../services/EventServices.js";
 import ShowServices from "../services/ShowServices.js";
@@ -43,6 +43,11 @@ async function getEvents() {
       snackbar.value.color = "error";
       snackbar.value.text = error.response?.data?.message || "Error loading events";
     });
+
+    for (event of events.value) {
+      let takenSeats = await EventServices.getTakenSeats(event.id);
+      event.takenSeatsCount = takenSeats.length;
+    }
 }
 
 function openSeatMap(selectedEvent) {
@@ -59,6 +64,7 @@ function openSeatMap(selectedEvent) {
 
       <v-card
         v-for="event in events"
+        :disabled="event.takenSeatsCount >= event.capacity"
         :key="event.id"
         class="my-5 elevation-2"
         variant="outlined"
