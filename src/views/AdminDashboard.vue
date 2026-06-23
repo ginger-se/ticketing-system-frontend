@@ -78,6 +78,9 @@ async function getStats() {
       <v-col cols="12" sm="6">
         <v-btn block color="primary" :to="{ name: 'adminRefunds' }">Manage Refunds</v-btn>
      </v-col>
+     <v-col cols="12" sm="6">
+        <v-btn block color="primary" :to="{ name: 'adminUsers' }">Manage Users</v-btn>
+     </v-col>
     </v-row>
 
     <v-snackbar v-model="snackbar.value" rounded="pill">
