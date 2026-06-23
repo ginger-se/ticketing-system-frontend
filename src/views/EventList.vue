@@ -1,5 +1,5 @@
 <script setup>
-import { onMounted, ref } from "vue";
+import { onMounted, ref, computed } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import EventServices from "../services/EventServices.js";
 import ShowServices from "../services/ShowServices.js";
@@ -43,6 +43,12 @@ async function getEvents() {
       snackbar.value.color = "error";
       snackbar.value.text = error.response?.data?.message || "Error loading events";
     });
+
+    for (let event of events.value) {
+      const response = await EventServices.getTakenSeats(event.id);
+      const takenSeats = response.data;
+      event.takenSeatsCount = takenSeats.length;
+    }
 }
 
 function openSeatMap(selectedEvent) {
@@ -59,6 +65,7 @@ function openSeatMap(selectedEvent) {
 
       <v-card
         v-for="event in events"
+        :disabled="event.takenSeatsCount >= event.capacity"
         :key="event.id"
         class="my-5 elevation-2"
         variant="outlined"
@@ -77,14 +84,22 @@ function openSeatMap(selectedEvent) {
             >
               {{ event.status }}
             </v-chip>
+            <v-chip
+              v-if="event.takenSeatsCount >= event.capacity"
+              class="ml-3"
+              color="red"
+              size="small"
+            >
+              Sold Out
+            </v-chip>
           </v-card-text>
           <v-card-actions class="justify-end">
             <v-btn
               class="bg-primary"
-              :disabled="event.status !== 'Scheduled'"
+              :disabled="event.status !== 'Scheduled' || event.takenSeatsCount >= event.capacity"
               @click="openSeatMap(event)"
             >
-              Book Now
+              {{ event.takenSeatsCount >= event.capacity ? 'Sold Out' : 'Book Now' }}
             </v-btn>
           </v-card-actions>
         </div>
