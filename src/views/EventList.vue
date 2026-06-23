@@ -44,8 +44,9 @@ async function getEvents() {
       snackbar.value.text = error.response?.data?.message || "Error loading events";
     });
 
-    for (event of events.value) {
-      let takenSeats = await EventServices.getTakenSeats(event.id);
+    for (let event of events.value) {
+      const response = await EventServices.getTakenSeats(event.id);
+      const takenSeats = response.data;
       event.takenSeatsCount = takenSeats.length;
     }
 }
