@@ -1,7 +1,9 @@
 <script setup>
 import { onMounted, ref } from "vue";
+import { useRouter } from "vue-router";
 import ShowServices from "../services/ShowServices.js";
 
+const router = useRouter();
 const shows = ref([]);
 const isAdd = ref(false);
 const isEdit = ref(false);
@@ -31,7 +33,7 @@ async function getShows() {
       console.log(error);
       snackbar.value.value = true;
       snackbar.value.color = "error";
-      snackbar.value.text = error.response.data.message;
+      snackbar.value.text = error.response?.data?.message || "Error loading shows";
     });
 }
 
@@ -47,7 +49,7 @@ async function addShow() {
       console.log(error);
       snackbar.value.value = true;
       snackbar.value.color = "error";
-      snackbar.value.text = error.response.data.message;
+      snackbar.value.text = error.response?.data?.message || "Error adding show";
     });
   await getShows();
 }
@@ -64,7 +66,7 @@ async function updateShow() {
       console.log(error);
       snackbar.value.value = true;
       snackbar.value.color = "error";
-      snackbar.value.text = error.response.data.message;
+      snackbar.value.text = error.response?.data?.message || "Error updating show";
     });
   await getShows();
 }
@@ -80,7 +82,7 @@ async function deleteShow(show) {
       console.log(error);
       snackbar.value.value = true;
       snackbar.value.color = "error";
-      snackbar.value.text = error.response.data.message;
+      snackbar.value.text = error.response?.data?.message || "Error deleting show";
     });
   await getShows();
 }
@@ -109,10 +111,10 @@ function closeSnackBar() {
 </script>
 
 <template>
-<v-container>
- <v-btn variant="text" prepend-icon="mdi-arrow-left" @click="router.push({ name: 'adminDashboard' })" class="mb-4">
-  Back to Dashboard
-</v-btn>
+  <v-container>
+    <v-btn variant="text" prepend-icon="mdi-arrow-left" @click="router.push({ name: 'adminDashboard' })" class="mb-4">
+      Back to Dashboard
+    </v-btn>
     <v-row align="center" class="mb-4">
       <v-col cols="10">
         <v-card-title class="pl-0 text-h4 font-weight-bold">
@@ -165,24 +167,10 @@ function closeSnackBar() {
       <v-card class="rounded-lg elevation-5">
         <v-card-title class="headline mb-2">Add Show</v-card-title>
         <v-card-text>
-          <v-text-field
-            v-model="newShow.title"
-            label="Title"
-            required
-          ></v-text-field>
-          <v-textarea
-            v-model="newShow.description"
-            label="Description"
-          ></v-textarea>
-          <v-text-field
-            v-model="newShow.speakerInfo"
-            label="Speaker Info"
-          ></v-text-field>
-          <v-text-field
-            v-model.number="newShow.price"
-            label="Price"
-            type="number"
-          ></v-text-field>
+          <v-text-field v-model="newShow.title" label="Title" required></v-text-field>
+          <v-textarea v-model="newShow.description" label="Description"></v-textarea>
+          <v-text-field v-model="newShow.speakerInfo" label="Speaker Info"></v-text-field>
+          <v-text-field v-model.number="newShow.price" label="Price" type="number"></v-text-field>
         </v-card-text>
         <v-card-actions>
           <v-spacer></v-spacer>
@@ -197,24 +185,10 @@ function closeSnackBar() {
       <v-card class="rounded-lg elevation-5">
         <v-card-title class="headline mb-2">Edit Show</v-card-title>
         <v-card-text>
-          <v-text-field
-            v-model="editShow.title"
-            label="Title"
-            required
-          ></v-text-field>
-          <v-textarea
-            v-model="editShow.description"
-            label="Description"
-          ></v-textarea>
-          <v-text-field
-            v-model="editShow.speakerInfo"
-            label="Speaker Info"
-          ></v-text-field>
-          <v-text-field
-            v-model.number="editShow.price"
-            label="Price"
-            type="number"
-          ></v-text-field>
+          <v-text-field v-model="editShow.title" label="Title" required></v-text-field>
+          <v-textarea v-model="editShow.description" label="Description"></v-textarea>
+          <v-text-field v-model="editShow.speakerInfo" label="Speaker Info"></v-text-field>
+          <v-text-field v-model.number="editShow.price" label="Price" type="number"></v-text-field>
         </v-card-text>
         <v-card-actions>
           <v-spacer></v-spacer>
