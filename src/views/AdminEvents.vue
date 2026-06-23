@@ -278,6 +278,8 @@ function closeSnackBar() {
             v-model.number="newEvent.capacity"
             label="Capacity"
             type="number"
+            :max="75"
+            :disabled="true"
             required
           ></v-text-field>
           <p>Fill both of these out if the event is recurring.</p>
@@ -339,6 +341,8 @@ function closeSnackBar() {
             v-model.number="editEvent.capacity"
             label="Capacity"
             type="number"
+            :max="75"
+            :disabled="true"
             required
           ></v-text-field>
           <v-select
