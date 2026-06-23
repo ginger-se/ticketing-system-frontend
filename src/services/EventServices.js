@@ -13,7 +13,10 @@ export default {
   getEvent(id) {
     return apiClient.get("events/" + id);
   },
-   addEvent(event) {
+  getTakenSeats(eventId) {
+    return apiClient.get("events/" + eventId + "/seats/taken");
+  },
+  addEvent(event) {
     return apiClient.post("events", event);
   },
   updateEvent(eventId, event) {
@@ -22,7 +25,6 @@ export default {
   cancelEvent(eventId) {
     return apiClient.put("events/" + eventId + "/cancel");
   },
-
   deleteShow(eventId) {
     return apiClient.delete("events/" + eventId);
   },

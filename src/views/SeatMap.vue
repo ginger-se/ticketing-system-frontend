@@ -3,6 +3,7 @@ import { onMounted } from "vue";
 import { ref, toRaw, computed, shallowRef } from "vue";
 import { useRouter, useRoute } from "vue-router";
 import SeatServices from "../services/SeatServices";
+import EventServices from "../services/EventServices";
 
 const router = useRouter();
 const route = useRoute();
@@ -11,6 +12,7 @@ const seatingCard = ref('seating-card');
 const seatingContainer = ref('seating-container');
 const selectedSeats = ref([]);
 const retrievedSeats = ref([]);
+const takenSeats = ref([]);
 const seatMap = ref({});
 const selected = ref('selected');
 const taken = ref('taken');
@@ -37,7 +39,24 @@ const snackbar = ref({
 
 onMounted(async () => {
   await getSeats();
+  await getTakenSeats();
 });
+
+async function getTakenSeats() {
+  await EventServices.getTakenSeats(route.params.eventId)
+    .then((response) => {
+      takenSeats.value = Array.isArray(response.data)
+       ? response.data 
+       : [];
+    })
+    .catch((error) => {
+      console.log(error);
+      takenSeats.value = [];
+      snackbar.value.value = true;
+      snackbar.value.color = "error";
+      snackbar.value.text = error.response?.data?.message || "Error loading taken seats";
+    })
+}
 
 async function getSeats() {
   await SeatServices.getSeats()
@@ -74,18 +93,27 @@ function locateSeat(seat) {
 }
 
 function seatToggle(seat) {
-  const found = locateSeat(seat);
-  
-  if (found === -1) {
-    selectedSeats.value.push(seat);
+  if (isSeatTaken(seat)) {
+    return;
   }
   else {
-    selectedSeats.value.splice(found, 1);
+    const found = locateSeat(seat);
+    
+    if (found === -1) {
+      selectedSeats.value.push(seat);
+    }
+    else {
+      selectedSeats.value.splice(found, 1);
+    }
   }
 }
 
 function isSeatSelected(seat) {
   return selectedSeats.value.includes(seat);
+}
+
+function isSeatTaken(seat) {
+  return takenSeats.value.includes(seat.id);
 }
 
 function calculateSeatCol(seatNumber) {  
@@ -145,16 +173,24 @@ function returnToEvents() {
   
                 <!-- Loop through the seats within a row in the seat map -->
                 <template v-for="seat in seatsArray" :key="seat.seatNumber">
-                  <div v-if="seat.isHandicap === false" :style="{ gridColumn: calculateSeatCol(seat.seatNumber) }" @click="seatToggle(seat)">
-                    <v-btn :class="isSeatSelected(seat) ? 'selected' : 'seatColor'" variant="text">
+                  <div v-if="seat.isHandicap === false" :style="{ gridColumn: calculateSeatCol(seat.seatNumber) }">
+                    <v-btn
+                     :disabled="isSeatTaken(seat)" 
+                     :class="isSeatTaken(seat) ? 'taken' : isSeatSelected(seat) ? 'selected' : 'seatColor'" 
+                     variant="text" 
+                     @click="seatToggle(seat)">
                       <v-icon>
-                        {{ isSeatSelected(seat) ? 'mdi-sofa-single' : 'mdi-sofa-single-outline' }}
+                        {{ isSeatTaken(seat) ? 'mdi-sofa-single' : isSeatSelected(seat) ? 'mdi-sofa-single' : 'mdi-sofa-single-outline' }}
                       </v-icon>
                     </v-btn>
                   </div>
   
-                  <div v-else :style="{ gridColumn: calculateSeatCol(seat.seatNumber) }" @click="seatToggle(seat)">
-                    <v-btn :class="isSeatSelected(seat) ? 'selected' : 'wheelchair'" variant="text">
+                  <div v-else :style="{ gridColumn: calculateSeatCol(seat.seatNumber) }">
+                    <v-btn 
+                      :disabled="isSeatTaken(seat)" 
+                      :class="isSeatTaken(seat) ? 'taken' : isSeatSelected(seat) ? 'selected' : 'wheelchair'" 
+                      variant="text" 
+                      @click="seatToggle(seat)">
                       <v-icon>
                         mdi-wheelchair-accessibility
                       </v-icon>
@@ -264,7 +300,8 @@ function returnToEvents() {
 }
 
 .taken {
-  color: #05010c;
+  color:#090909;
+  opacity: 0.8;
 }
 
 .row-headers {
