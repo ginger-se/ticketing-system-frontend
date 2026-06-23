@@ -84,14 +84,22 @@ function openSeatMap(selectedEvent) {
             >
               {{ event.status }}
             </v-chip>
+            <v-chip
+              v-if="event.takenSeatsCount >= event.capacity"
+              class="ml-3"
+              color="red"
+              size="small"
+            >
+              Sold Out
+            </v-chip>
           </v-card-text>
           <v-card-actions class="justify-end">
             <v-btn
               class="bg-primary"
-              :disabled="event.status !== 'Scheduled'"
+              :disabled="event.status !== 'Scheduled' || event.takenSeatsCount >= event.capacity"
               @click="openSeatMap(event)"
             >
-              Book Now
+              {{ event.takenSeatsCount >= event.capacity ? 'Sold Out' : 'Book Now' }}
             </v-btn>
           </v-card-actions>
         </div>
