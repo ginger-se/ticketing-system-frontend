@@ -1,5 +1,5 @@
 {
-  "name": "ticketing-frontend",
+  "name": "recipe-frontend",
   "version": "0.0.0",
   "scripts": {
     "dev": "cross-env APP_ENV=development vite",
