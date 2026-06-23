@@ -29,6 +29,15 @@ const eventId = ref(null);
 const selectedShow = ref(null);
 const selectedEvent = ref(null);
 const isValidForm = ref(false);
+const remainingTime = ref(600);
+
+const formattedTime = computed(() => {
+  const minutesLeft = Math.floor(remainingTime.value / 60);
+  const secondsLeft = remainingTime.value % 60;
+  const minutes = minutesLeft.toString().padStart(2, '0');
+  const seconds = secondsLeft.toString().padStart(2, '0');
+  return minutes + ":" + seconds;
+});
 
 const snackbar = ref({
   value: false,
@@ -91,7 +100,22 @@ onMounted(async () => {
   await getEventDetails();
   getSelectedSeats();
   addTicketType(selectedSeats.value);
+  startTimer();
 });
+
+function startTimer() {
+  let x = setInterval(() => {
+    remainingTime.value -= 1;
+    if (remainingTime.value < 1 ) {
+      clearInterval(x);
+      snackbar.value.value = true;
+      snackbar.value.color = "error";
+      snackbar.value.text = "Your time has expired!";
+      localStorage.removeItem("reservationId");
+      router.push({ name: "seatmap", params: { id: route.params.id, eventId: route.params.eventId }});
+    }
+  }, 1000);
+}
 
 async function getShowDetails() {
   await ShowServices.getShow(showId.value)

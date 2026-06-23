@@ -26,6 +26,35 @@ const snackbar = ref({
   text: "",
 });
 
+const checkRequired = ((value) => {
+  if (value) return true;
+  return "This field is required.";
+});
+
+const checkEmail = ((value) => {
+  if (/.+@.+\..+/.test(value)) return true;
+  return "E-mail must be valid.";
+});
+
+const checkPassword = ((value) => {
+  if (value?.length >= 8 ) return true;
+  return "Password must be at least 8 characters."
+})
+
+const checkMatch = ((value) => {
+  if (value === accountPasswords.value.firstPassword) return true;
+  return "Passwords do not match.";
+});
+
+const requiredRules = [ checkRequired ];
+
+const emailRules = [ checkRequired, checkEmail ];
+
+const passwordRules = [ checkRequired, checkPassword ];
+
+const matchRules = [ checkRequired, checkMatch ];
+
+
 onMounted(async () => {
   const storedUser = localStorage.getItem("user");
   if (storedUser && storedUser !== "null" && storedUser !== "undefined") {
