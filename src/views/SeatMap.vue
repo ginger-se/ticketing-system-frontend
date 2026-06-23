@@ -135,6 +135,8 @@ function closeSnackBar() {
 async function openBooking() {
   const selectedSeatIds = selectedSeats.value.map(seat => seat.id);
   const response = await EventServices.addReservation(route.params.eventId, { seats: selectedSeatIds });
+  const expirationTime = Date.now() + 600000;
+  window.localStorage.setItem("expirationTime", expirationTime);
   window.localStorage.setItem("reservationId", JSON.stringify(response.data.reservationId));
   window.localStorage.setItem("selectedSeats", JSON.stringify(selectedSeats.value));
   router.push({ name: "booking", params: { id: route.params.id, eventId: route.params.eventId }});
@@ -148,10 +150,9 @@ function returnToEvents() {
 <template>
   <v-container>
     <div id="body">
-      <v-row id="reservationTimer">
+      <v-row id="selectSeatsHeader">
         <h3>Select Your Seats</h3>
       </v-row>
-
       <v-row justify="center" class="mt-7">
         <v-col>
           <v-card :class="seatingCard" class="rounded-md elevation-2">
@@ -286,8 +287,11 @@ function returnToEvents() {
   background-color: rgb(90, 88, 84)
 }
 
-#reservationTimer {
-  padding: 1rem;
+#selectSeatsHeader {
+  font-size: larger;
+  margin-top: 0.6rem;
+  padding-top: 1rem;
+  padding-left: 1rem;;
 }
 
 .wheelchair {

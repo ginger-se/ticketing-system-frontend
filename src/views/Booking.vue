@@ -104,14 +104,19 @@ onMounted(async () => {
 });
 
 function startTimer() {
+  const expirationTime = JSON.parse(localStorage.getItem("expirationTime"));
+
+  remainingTime.value = Math.floor((expirationTime - Date.now()) / 1000);
   let x = setInterval(() => {
-    remainingTime.value -= 1;
+    remainingTime.value = Math.floor((expirationTime - Date.now()) / 1000);
+  
     if (remainingTime.value < 1 ) {
       clearInterval(x);
       snackbar.value.value = true;
       snackbar.value.color = "error";
       snackbar.value.text = "Your time has expired!";
       localStorage.removeItem("reservationId");
+      localStorage.removeItem("expirationTime");
       router.push({ name: "seatmap", params: { id: route.params.id, eventId: route.params.eventId }});
     }
   }, 1000);
@@ -218,6 +223,9 @@ function closeSnackBar() {
     <div id="body">
       <v-row id="body-row">
         <v-col id="body-col">
+          <v-row justify="end" class="mt-6 mb-4">
+            Time Remaining: <span style="color: blue; margin-left: 4px"> {{ formattedTime}}</span>
+          </v-row>
           <div id="cards" class="d-flex ga-10">
             <v-col style="flex-basis: 50%;" class="px-0">
               <div :class="colHeader">Order Summary</div>
