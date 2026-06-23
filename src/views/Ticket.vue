@@ -2,11 +2,13 @@
 import { onMounted, ref, computed } from "vue";
 import { useRouter } from "vue-router";
 import TicketServices from "../services/TicketServices.js";
+import RefundServices from "../services/RefundServices.js";
 import jsPDF from "jspdf";
 import QRCode from "qrcode";
 
 const router = useRouter();
 const tickets = ref([]);
+const refunds = ref([]);
 const tab = ref("upcoming");
 const user = ref(null);
 const snackbar = ref({
@@ -18,22 +20,29 @@ const snackbar = ref({
 onMounted(async () => {
   user.value = JSON.parse(localStorage.getItem("user"));
   await getTickets();
+  await getRefunds();
 });
 
 async function getTickets() {
   await TicketServices.getTicketsForUser(user.value.id)
     .then((response) => {
       tickets.value = response.data;
-      console.log("ALL TICKETS:", JSON.stringify(response.data, null, 2));
-      response.data.forEach((t, i) => {
-        console.log(`ticket[${i}] event:`, t.event, "seat:", t.seat, "payment:", t.payment);
-      });
     })
     .catch((error) => {
       console.log("ERROR:", error.response?.status, error.response?.data);
       snackbar.value.value = true;
       snackbar.value.color = "error";
       snackbar.value.text = error.response?.data?.message || "Error loading tickets";
+    });
+}
+
+async function getRefunds() {
+  await RefundServices.getRefundsForUser(user.value.id)
+    .then((response) => {
+      refunds.value = response.data;
+    })
+    .catch((error) => {
+      console.log("REFUND ERROR:", error.response?.status, error.response?.data);
     });
 }
 
@@ -46,12 +55,28 @@ function getEventDateTime(event) {
   return new Date(`${datePart} ${event.startTime}`);
 }
 
+function getTicketForRefund(refund) {
+  return tickets.value.find(t => t.payment?.id === refund.payment?.id) || null;
+}
+
+const refundedPaymentIds = computed(() =>
+  refunds.value.map((r) => r.payment?.id)
+);
+
 const upcomingTickets = computed(() =>
-  tickets.value.filter((t) => t.event && getEventDateTime(t.event) >= new Date())
+  tickets.value.filter((t) =>
+    t.event &&
+    getEventDateTime(t.event) >= new Date() &&
+    !refundedPaymentIds.value.includes(t.payment?.id)
+  )
 );
 
 const pastTickets = computed(() =>
-  tickets.value.filter((t) => t.event && getEventDateTime(t.event) < new Date())
+  tickets.value.filter((t) =>
+    t.event &&
+    getEventDateTime(t.event) < new Date() &&
+    !refundedPaymentIds.value.includes(t.payment?.id)
+  )
 );
 
 function goToRefund(ticket) {
@@ -61,7 +86,6 @@ function goToRefund(ticket) {
 async function downloadTicket(ticket) {
   try {
     const qrDataUrl = await QRCode.toDataURL(ticket.QRCode || `ticket-${ticket.id}`);
-
     const doc = new jsPDF({ unit: "pt", format: [400, 550] });
 
     doc.setFontSize(20);
@@ -115,9 +139,11 @@ async function downloadTicket(ticket) {
       <v-tabs v-model="tab" class="mb-4">
         <v-tab value="upcoming">Upcoming</v-tab>
         <v-tab value="past">Past</v-tab>
+        <v-tab value="refund">Refunds</v-tab>
       </v-tabs>
 
       <v-window v-model="tab">
+        <!-- Upcoming Tab -->
         <v-window-item value="upcoming">
           <v-card
             v-for="ticket in upcomingTickets"
@@ -135,7 +161,12 @@ async function downloadTicket(ticket) {
                 <v-btn variant="outlined" class="mr-2" @click="downloadTicket(ticket)">
                   Download
                 </v-btn>
-                <v-btn variant="outlined" color="error" @click="goToRefund(ticket)">
+                <v-btn
+                  variant="outlined"
+                  color="error"
+                  @click="goToRefund(ticket)"
+                  :disabled="refundedPaymentIds.includes(ticket.payment?.id)"
+                >
                   Request Refund
                 </v-btn>
               </v-card-actions>
@@ -152,6 +183,7 @@ async function downloadTicket(ticket) {
           </v-card>
         </v-window-item>
 
+        <!-- Past Tab -->
         <v-window-item value="past">
           <v-card
             v-for="ticket in pastTickets"
@@ -169,7 +201,12 @@ async function downloadTicket(ticket) {
                 <v-btn variant="outlined" class="mr-2" @click="downloadTicket(ticket)">
                   Download
                 </v-btn>
-                <v-btn variant="outlined" color="error" @click="goToRefund(ticket)">
+                <v-btn
+                  variant="outlined"
+                  color="error"
+                  @click="goToRefund(ticket)"
+                  :disabled="refundedPaymentIds.includes(ticket.payment?.id)"
+                >
                   Request Refund
                 </v-btn>
               </v-card-actions>
@@ -178,6 +215,48 @@ async function downloadTicket(ticket) {
 
           <v-card v-if="!pastTickets || pastTickets.length === 0" class="my-5 elevation-2" variant="outlined">
             <v-card-text>No past tickets.</v-card-text>
+          </v-card>
+        </v-window-item>
+
+        <!-- Refunds Tab -->
+        <v-window-item value="refund">
+          <v-card
+            v-for="refund in refunds"
+            :key="refund.id"
+            class="my-5 elevation-2"
+            variant="outlined"
+          >
+            <v-card-text>
+              <div class="d-flex justify-space-between align-center">
+                <div>
+                  <div class="font-weight-bold">
+                    {{ getTicketForRefund(refund)?.event?.show?.title || 'Unknown Show' }}
+                  </div>
+                  <div class="text-grey">
+                    {{ getTicketForRefund(refund)?.event?.date && getTicketForRefund(refund)?.event?.date !== '0000-00-00'
+                      ? new Date(getTicketForRefund(refund).event.date).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })
+                      : 'Date TBD' }}
+                    - {{ getTicketForRefund(refund)?.event?.startTime || '' }}
+                  </div>
+                  <div class="text-grey">
+                    Seat: {{ getTicketForRefund(refund)?.seat?.rowNumber }}{{ getTicketForRefund(refund)?.seat?.seatNumber }}
+                  </div>
+                  <div class="text-grey text-caption mt-1">
+                    Requested: {{ new Date(refund.requestDate).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }) }}
+                  </div>
+                </div>
+                <v-chip
+                  :color="refund.refundStatus === 'Pending' ? 'orange' : refund.refundStatus === 'Approved' ? 'green' : 'error'"
+                  size="small"
+                >
+                  {{ refund.refundStatus }}
+                </v-chip>
+              </div>
+            </v-card-text>
+          </v-card>
+
+          <v-card v-if="!refunds || refunds.length === 0" class="my-5 elevation-2" variant="outlined">
+            <v-card-text>No refund requests.</v-card-text>
           </v-card>
         </v-window-item>
       </v-window>
