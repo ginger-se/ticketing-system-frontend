@@ -47,7 +47,9 @@ onMounted(async () => {
 });
 
 function getSelectedSeats() {
-  selectedSeats.value = JSON.parse(localStorage.getItem("selectedSeats"));
+  const savedSeats = JSON.parse(localStorage.getItem("selectedSeats"));
+  selectedSeats.value = savedSeats;
+  localStorage.removeItem("selectedSeats");
 }
 
 function formatDate(date) {

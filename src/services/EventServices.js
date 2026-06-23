@@ -19,6 +19,9 @@ export default {
   addEvent(event) {
     return apiClient.post("events", event);
   },
+  addReservation(eventId, data) {
+    return apiClient.post("events/" + eventId + "/reservations", data);
+  },
   updateEvent(eventId, event) {
     return apiClient.put("events/" + eventId, event);
   },
