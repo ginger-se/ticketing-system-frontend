@@ -38,6 +38,14 @@ const snackbar = ref({
 });
 
 onMounted(async () => {
+  const currentEventId = localStorage.getItem("currentEventId");
+  if (currentEventId && currentEventId !== route.params.eventId) {
+    localStorage.removeItem("currentEventId");
+    localStorage.removeItem("selectedSeats");
+    localStorage.removeItem("reservationId");
+    localStorage.removeItem("expirationTime");
+    localStorage.removeItem("totalAmount");
+  }
   await getSeats();
   await getTakenSeats();
 });
@@ -56,6 +64,14 @@ async function getTakenSeats() {
       snackbar.value.color = "error";
       snackbar.value.text = error.response?.data?.message || "Error loading taken seats";
     })
+
+  const localTakenSeats = JSON.parse(localStorage.getItem("selectedSeats"));
+
+  if (localTakenSeats.length > 0) {
+    const localTakenSeatIds = localTakenSeats.map(seat => seat.id);
+    takenSeats.value = takenSeats.value.filter(seatId => !localTakenSeatIds.includes(seatId));
+    selectedSeats.value = localTakenSeats;
+  }
 }
 
 async function getSeats() {
@@ -109,7 +125,7 @@ function seatToggle(seat) {
 }
 
 function isSeatSelected(seat) {
-  return selectedSeats.value.includes(seat);
+  return selectedSeats.value.some(s => s.id === seat.id);
 }
 
 function isSeatTaken(seat) {
@@ -139,6 +155,7 @@ async function openBooking() {
   window.localStorage.setItem("expirationTime", expirationTime);
   window.localStorage.setItem("reservationId", JSON.stringify(response.data.reservationId));
   window.localStorage.setItem("selectedSeats", JSON.stringify(selectedSeats.value));
+  window.localStorage.setItem("currentEventId", route.params.eventId);
   router.push({ name: "booking", params: { id: route.params.id, eventId: route.params.eventId }});
 }
 

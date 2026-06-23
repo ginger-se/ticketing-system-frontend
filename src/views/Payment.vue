@@ -95,6 +95,7 @@ function startTimer() {
       snackbar.value.text = "Your time has expired!";
       localStorage.removeItem("reservationId");
       localStorage.removeItem("expirationTime");
+      localStorage.removeItem("selectedSeats");
       router.push({ name: "seatmap", params: { id: route.params.id, eventId: route.params.eventId }});
     }
   }, 1000);
@@ -284,7 +285,7 @@ function closeSnackBar() {
                   :class="continueBtn" 
                   variant="flat" 
                   color="primary"
-                  @click="completePurchase()"
+                  @click.prevent="completePurchase()"
                 > Complete Purchase - ${{ totalAmount.toFixed(2) }}
                 </v-btn>
               </div>
